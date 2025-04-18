@@ -70,25 +70,23 @@ def check_contact_page(base_url: str) -> str | None:
             contact_url,
             headers=headers,
             timeout=REQUEST_TIMEOUT,
-            allow_redirects=True,  # Follow redirects to find the final page
+            allow_redirects=False, # Check the status code directly, don't follow redirects
         )
-        # Check if the final URL after redirects still points to a contact-like page
-        # This is a simple check; a more robust one might be needed
-        final_path = urlparse(response.url).path.lower()
-        if response.status_code == 200 and (CONTACT_PATH in final_path or "contact" in final_path):
-             # Check content type to avoid non-html pages if needed
-            # content_type = response.headers.get('Content-Type', '').lower()
-            # if 'html' in content_type:
-            #    return base_url
-            return base_url # Assume 200 means usable contact page for now
+        # Accept 200 OK, or 301/302 Redirects as indicators of a contact page
+        if response.status_code in [200, 301, 302]:
+            # We assume a 200 or a redirect from /contact means a contact page exists
+            # Further checks could be added here (e.g., checking Location header for redirects)
+            # content_type = response.headers.get('Content-Type', '').lower() # Example check
+            # if 'html' in content_type: # Example check
+            return base_url
         else:
-            # log.debug(f"Contact page not found or non-200 status for {base_url} (URL: {contact_url}, Status: {response.status_code})")
+            # log.debug(f"Contact page not found for {base_url} (URL: {contact_url}, Status: {response.status_code})")
             return None
     except requests.exceptions.Timeout:
-        # log.warning(f"Timeout checking {contact_url}")
+        # log.debug(f"Timeout checking {contact_url}")
         return None
     except requests.exceptions.RequestException as e:
-        # log.warning(f"Error checking {contact_url}: {e}")
+        # log.debug(f"Error checking {contact_url}: {e}")
         return None
     except Exception as e:
         # Catch any other unexpected errors during the check
