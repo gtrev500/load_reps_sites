@@ -1,0 +1,1916 @@
+--- Starting Sitemap Check (537 URLs from website_members.txt) ---
+Checking: https://alsobrooks.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.alsobrooks.senate.gov/sitemap_index.xml
+
+Checking: https://www.britt.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.britt.senate.gov/sitemap_index.xml
+
+Checking: https://www.budd.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.budd.senate.gov/sitemap_index.xml
+
+Checking: https://www.slotkin.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.slotkin.senate.gov/sitemap_index.xml
+
+Checking: https://www.kim.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.kim.senate.gov/sitemap_index.xml
+
+Checking: https://mccormick.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.mccormick.senate.gov/sitemap_index.xml
+
+Checking: https://www.banks.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.banks.senate.gov/sitemap_index.xml
+
+Checking: https://www.young.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.young.senate.gov/sitemap_index.xml
+
+Checking: https://www.wyden.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.warnock.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.warnock.senate.gov/sitemap_index.xml
+
+Checking: https://www.husted.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.husted.senate.gov/sitemap_index.xml
+
+Checking: https://www.warren.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.whitehouse.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.whitehouse.senate.gov/sitemap_index.xml
+
+Checking: https://www.warner.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.welch.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.welch.senate.gov/wp-sitemap.xml
+
+Checking: https://www.wicker.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.wicker.senate.gov/sitemap.xml
+
+Checking: https://www.vanhollen.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.vanhollen.senate.gov/sitemap.xml
+
+Checking: https://www.tuberville.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.tuberville.senate.gov/sitemap_index.xml
+
+Checking: https://www.smith.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.smith.senate.gov/sitemap_index.xml
+
+Checking: https://www.tillis.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.tillis.senate.gov/sitemap.xml
+
+Checking: https://www.sullivan.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.thune.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.sheehy.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.sheehy.senate.gov/sitemap_index.xml
+
+Checking: https://www.rickscott.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.rickscott.senate.gov/sitemap.xml
+
+Checking: https://www.shaheen.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.shaheen.senate.gov/sitemap.xml
+
+Checking: https://www.schmitt.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.schmitt.senate.gov/sitemap_index.xml
+
+Checking: https://www.rounds.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.rounds.senate.gov/sitemap.xml
+
+Checking: https://www.schatz.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.schatz.senate.gov/sitemap.xml
+
+Checking: https://www.scott.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.scott.senate.gov/sitemap_index.xml
+
+Checking: https://www.schumer.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.schumer.senate.gov/sitemap.xml
+
+Checking: https://www.sanders.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.sanders.senate.gov/sitemap_index.xml
+
+Checking: https://www.schiff.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.schiff.senate.gov/sitemap_index.xml
+
+Checking: https://www.ricketts.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.ricketts.senate.gov/sitemap_index.xml
+
+Checking: https://www.justice.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.justice.senate.gov/sitemap_index.xml
+
+Checking: https://www.rosen.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.rosen.senate.gov/sitemap_index.xml
+
+Checking: https://www.peters.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.peters.senate.gov/sitemap.xml
+
+Checking: https://www.risch.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.reed.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.reed.senate.gov/sitemap.xml
+
+Checking: https://www.padilla.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.padilla.senate.gov/sitemap_index.xml
+
+Checking: https://www.ossoff.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.ossoff.senate.gov/wp-sitemap.xml
+
+Checking: https://www.paul.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.paul.senate.gov/sitemap_index.xml
+
+Checking: https://www.murray.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.murray.senate.gov/sitemap_index.xml
+
+Checking: https://www.moreno.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.moreno.senate.gov/sitemap_index.xml
+
+Checking: https://www.mullin.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.mullin.senate.gov/sitemap_index.xml
+
+Checking: https://www.murphy.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.murphy.senate.gov/sitemap.xml
+
+Checking: https://www.moran.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.murkowski.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.moody.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.moody.senate.gov/sitemap_index.xml
+
+Checking: https://www.marshall.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.marshall.senate.gov/sitemap_index.xml
+
+Checking: https://www.lummis.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.lummis.senate.gov/sitemap_index.xml
+
+Checking: https://www.merkley.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.merkley.senate.gov/sitemap_index.xml
+
+Checking: https://www.markey.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.markey.senate.gov/sitemap.xml
+
+Checking: https://www.mcconnell.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.king.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.king.senate.gov/sitemap.xml
+
+Checking: https://www.klobuchar.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.lee.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.lee.senate.gov/sitemap.xml
+
+Checking: https://www.fetterman.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.fetterman.senate.gov/sitemap_index.xml
+
+Checking: https://www.lankford.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.lankford.senate.gov/sitemap_index.xml
+
+Checking: https://www.lujan.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.lujan.senate.gov/sitemap_index.xml
+
+Checking: https://www.kelly.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.kelly.senate.gov/sitemap_index.xml
+
+Checking: https://www.kennedy.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.kaine.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.kaine.senate.gov/sitemap.xml
+
+Checking: https://www.hydesmith.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.ronjohnson.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.ronjohnson.senate.gov/sitemap.xml
+
+Checking: https://www.hoeven.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.hirono.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.hirono.senate.gov/sitemap.xml
+
+Checking: https://www.hickenlooper.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.hickenlooper.senate.gov/wp-sitemap.xml
+
+Checking: https://www.hagerty.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.hagerty.senate.gov/sitemap_index.xml
+
+Checking: https://www.hawley.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.hawley.senate.gov/sitemap_index.xml
+
+Checking: https://www.hassan.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.hassan.senate.gov/sitemap.xml
+
+Checking: https://www.heinrich.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.heinrich.senate.gov/sitemap.xml
+
+Checking: https://www.grassley.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.grassley.senate.gov/sitemap_index.xml
+
+Checking: https://www.gallego.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.gallego.senate.gov/sitemap_index.xml
+
+Checking: https://www.fischer.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.gillibrand.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.gillibrand.senate.gov/sitemap_index.xml
+
+Checking: https://www.lgraham.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.curtis.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.curtis.senate.gov/sitemap_index.xml
+
+Checking: https://www.ernst.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.ernst.senate.gov/sitemap.xml
+
+Checking: https://www.cruz.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.cruz.senate.gov/sitemap.xml
+
+Checking: https://www.daines.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.daines.senate.gov/sitemap_index.xml
+
+Checking: https://www.duckworth.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.durbin.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.crapo.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.crapo.senate.gov/sitemap.xml
+
+Checking: https://www.cortezmasto.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.cortezmasto.senate.gov/sitemap_index.xml
+
+Checking: https://www.cramer.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.cramer.senate.gov/sitemap.xml
+
+Checking: https://www.cotton.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.cotton.senate.gov/sitemap.xml
+
+Checking: https://www.cornyn.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.cornyn.senate.gov/sitemap_index.xml
+
+Checking: https://knott.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.coons.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.cassidy.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.cassidy.senate.gov/sitemap_index.xml
+
+Checking: https://www.collins.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.collins.senate.gov/sitemap.xml
+
+Checking: https://www.capito.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.capito.senate.gov/sitemap.xml
+
+Checking: https://www.cantwell.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.bluntrochester.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.bluntrochester.senate.gov/sitemap_index.xml
+
+Checking: https://www.booker.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.booker.senate.gov/sitemap.xml
+
+Checking: https://www.blumenthal.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.blumenthal.senate.gov/sitemap.xml
+
+Checking: https://www.boozman.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://www.barrasso.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.barrasso.senate.gov/sitemap_index.xml
+
+Checking: https://www.bennet.senate.gov
+    -> Result: Sitemap Found (from robots.txt): https://www.bennet.senate.gov/sitemap_index.xml
+
+Checking: https://www.baldwin.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.baldwin.senate.gov/sitemap.xml
+
+Checking: https://www.blackburn.senate.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://www.blackburn.senate.gov/sitemap.xml
+
+Checking: https://vandrew.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://flood.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://subramanyam.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://goodlander.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://randall.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://rileymoore.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://baumgartner.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://wied.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://hageman.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://balint.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://strickland.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://strickland.house.gov/sitemap_index.xml
+
+Checking: https://fitzgerald.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://grothman.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://newhouse.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://delbene.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://vindman.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://mcguire.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://mikekennedy.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://juliejohnson.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://gill.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://craiggoldman.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://maloy.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://mcclellan.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://keithself.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://moran.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://luttrell.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://kiggans.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://kiggans.house.gov/sitemap.xml
+
+Checking: https://casar.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://pfluger.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://jackson.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://gonzales.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://gonzales.house.gov/sitemap.xml
+
+Checking: https://fletcher.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://cloud.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://cloud.house.gov/sitemap.xml
+
+Checking: https://arrington.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://gonzalez.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://beyer.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://dexter.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://veasey.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://morgangriffith.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://cuellar.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://taylor.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://mannion.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://mackenzie.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://hernandez.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://bresnahan.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://bynum.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://sheribiggs.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://rulli.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://kennedy.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://amo.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://rivas.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://salinas.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://magaziner.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://summerlee.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://summerlee.house.gov/sitemap.xml
+
+Checking: https://langworthy.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://landsman.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://landsman.house.gov/sitemap.xml
+
+Checking: https://fry.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://brecheen.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://shontelbrown.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://bice.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://reschenthaler.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://reschenthaler.house.gov/sitemap.xml
+
+Checking: https://johnjoyce.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://hern.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://scanlon.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://tenney.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://latta.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://kaptur.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://riley.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://pou.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://latimer.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://gillen.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://mciver.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://vasquez.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://mcdowell.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://menendez.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://lawler.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://lalota.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://patryan.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://malliotakis.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://timmoore.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://fernandez.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://suozzi.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://jeffries.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://jeffries.house.gov/wp-sitemap.xml
+
+Checking: https://meng.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://tonko.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://titus.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://markharris.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://harrigan.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://fedorchak.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://downing.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://conaway.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://foushee.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://foushee.house.gov/sitemap.xml
+
+Checking: https://king-hinds.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://gottheimer.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://gottheimer.house.gov/sitemap.xml
+
+Checking: https://onder.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://olszewski.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://mcdonaldrivet.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://morrison.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://mcclaindelaney.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://elfreth.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://bell.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://barrett.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://thanedar.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://thanedar.house.gov/sitemap.xml
+
+Checking: https://james.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://ivey.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://messmer.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://alford.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://finstad.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://finstad.house.gov/sitemap.xml
+
+Checking: https://mcclain.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://mcclain.house.gov/sitemap.xml
+
+Checking: https://fischbach.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://fischbach.house.gov/sitemap.xml
+
+Checking: https://golden.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://craig.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://trahan.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://emmer.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://emmer.house.gov/sitemap.xml
+
+Checking: https://keating.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://shreve.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://schmidt.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://tokuda.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://tokuda.house.gov/sitemap.xml
+
+Checking: https://sorensen.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://nunn.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://nunn.house.gov/sitemap.xml
+
+Checking: https://jonathanjackson.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://houchin.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://budzinski.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://budzinski.house.gov/sitemap.xml
+
+Checking: https://millermeeks.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://mrvan.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://hinson.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://feenstra.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://underwood.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://chuygarcia.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://lahood.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://lahood.house.gov/sitemap.xml
+
+Checking: https://massie.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://stutzman.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://guthrie.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://scalise.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://fields.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://mcbride.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://jack.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://haridopolos.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://moylan.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://buchanan.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://buchanan.house.gov/sitemap.xml
+
+Checking: https://moskowitz.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://moskowitz.house.gov/sitemap.xml
+
+Checking: https://mills.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://mccormick.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://luna.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://luna.house.gov/sitemap.xml
+
+Checking: https://laurellee.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://collins.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://bean.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://cherfilus-mccormick.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://greene.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://franklin.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://donalds.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://castor.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://tran.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://min.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://hurd.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://gabeevans.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://crank.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://pettersen.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://kamlager-dove.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://robertgarcia.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://youngkim.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://youngkim.house.gov/sitemap.xml
+
+Checking: https://sarajacobs.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://sarajacobs.house.gov/sitemap.xml
+
+Checking: https://hayes.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://hayes.house.gov/sitemap.xml
+
+Checking: https://correa.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://correa.house.gov/sitemap.xml
+
+Checking: https://scottpeters.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://scottpeters.house.gov/sitemap.xml
+
+Checking: https://vargas.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://vargas.house.gov/sitemap.xml
+
+Checking: https://lindasanchez.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://whitesides.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://simon.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://liccardo.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://gray.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://friedman.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://fong.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://obernolte.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://cisneros.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://panetta.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://hamadeh.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://figures.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://begich.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://ansari.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://strong.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://kiley.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://kiley.house.gov/sitemap.xml
+
+Checking: https://crane.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://crane.house.gov/wp-sitemap.xml
+
+Checking: https://ciscomani.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://barrymoore.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://biggs.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://desaulnier.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://huffman.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://huffman.house.gov/sitemap.xml
+
+Checking: https://garamendi.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://schweikert.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://schweikert.house.gov/wp-sitemap.xml
+
+Checking: https://matsui.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://aderholt.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://bera.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://huizenga.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://auchincloss.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://auchincloss.house.gov/sitemap.xml
+
+Checking: https://simpson.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://perry.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://vanduyne.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://vanduyne.house.gov/sitemap.xml
+
+Checking: https://meuser.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://clarke.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://clarke.house.gov/sitemap_index.xml
+
+Checking: https://norcross.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://norcross.house.gov/sitemap.xml
+
+Checking: https://lofgren.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://kevinmullin.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://kevinmullin.house.gov/sitemap_index.xml
+
+Checking: https://ruiz.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://delacruz.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://carey.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://carey.house.gov/wp-sitemap.xml
+
+Checking: https://barr.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://barr.house.gov/sitemap.xml
+
+Checking: https://clyburn.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://clyburn.house.gov/sitemap_index.xml
+
+Checking: https://frost.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://frost.house.gov/sitemap.xml
+
+Checking: https://vanorden.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://gluesenkampperez.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://gluesenkampperez.house.gov/sitemap.xml
+
+Checking: https://tiffany.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://miller.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://steil.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://schrier.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://cline.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://jayapal.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://jayapal.house.gov/sitemap_index.xml
+
+Checking: https://plaskett.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://pocan.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://connolly.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://adamsmith.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://gwenmoore.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://larsen.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://ogles.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://hunt.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://crockett.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://ellzey.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://ellzey.house.gov/sitemap.xml
+
+Checking: https://owens.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://owens.house.gov/sitemap.xml
+
+Checking: https://nehls.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://blakemoore.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://blakemoore.house.gov/sitemap.xml
+
+Checking: https://mace.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://harshbarger.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://fallon.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://sylviagarcia.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://roy.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://escobar.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://gooden.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://gooden.house.gov/sitemap.xml
+
+Checking: https://crenshaw.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://crenshaw.house.gov/sitemap.xml
+
+Checking: https://markgreen.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://markgreen.house.gov/sitemap.xml
+
+Checking: https://weber.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://johnrose.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://burchett.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://dustyjohnson.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://timmons.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://wittman.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://norman.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://kustoff.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://babin.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://williams.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://castro.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://castro.house.gov/sitemap.xml
+
+Checking: https://desjarlais.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://desjarlais.house.gov/sitemap.xml
+
+Checking: https://fleischmann.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://cohen.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://sessions.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://sessions.house.gov/sitemap.xml
+
+Checking: https://bobbyscott.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://mccaul.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://algreen.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://carter.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://joewilson.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://doggett.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://sykes.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://sykes.house.gov/sitemap.xml
+
+Checking: https://maxmiller.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://maxmiller.house.gov/sitemap.xml
+
+Checking: https://hoyle.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://hoyle.house.gov/sitemap.xml
+
+Checking: https://deluzio.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://bentz.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://houlahan.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://dean.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://dean.house.gov/sitemap.xml
+
+Checking: https://morelle.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://balderson.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://smucker.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://fitzpatrick.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://fitzpatrick.house.gov/sitemap.xml
+
+Checking: https://evans.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://davidson.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://davidson.house.gov/sitemap.xml
+
+Checking: https://boyle.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://stefanik.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://stefanik.house.gov/sitemap.xml
+
+Checking: https://joyce.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://joyce.house.gov/sitemap.xml
+
+Checking: https://beatty.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://bonamici.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://kelly.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://jordan.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://thompson.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://lucas.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://lucas.house.gov/sitemap.xml
+
+Checking: https://cole.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://turner.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://turner.house.gov/sitemap.xml
+
+Checking: https://kean.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://goldman.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://edwards.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://stansbury.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://ritchietorres.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://ritchietorres.house.gov/sitemap.xml
+
+Checking: https://adams.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://garbarino.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://ocasio-cortez.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://susielee.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://sherrill.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://velazquez.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://pappas.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://espaillat.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://bacon.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://watsoncoleman.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://watsoncoleman.house.gov/sitemap.xml
+
+Checking: https://rouzer.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://horsford.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://hudson.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://amodei.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://adriansmith.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://pallone.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://meeks.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://chrissmith.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://nadler.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://foxx.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://scholten.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://ezell.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://dondavis.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://burlison.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://ross.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://ross.house.gov/sitemap.xml
+
+Checking: https://murphy.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://guest.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://stauber.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://omar.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://tlaib.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://tlaib.house.gov/sitemap.xml
+
+Checking: https://stevens.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://pressley.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://pressley.house.gov/sitemap_index.xml
+
+Checking: https://moolenaar.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://bergman.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://raskin.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://raskin.house.gov/sitemap.xml
+
+Checking: https://trentkelly.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://zinke.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://debbiedingell.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://moulton.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://katherineclark.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://katherineclark.house.gov/sitemap.xml
+
+Checking: https://wagner.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://jasonsmith.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://jasonsmith.house.gov/wp-sitemap.xml
+
+Checking: https://harris.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://walberg.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://pingree.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://mcgovern.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://benniethompson.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://neal.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://mfume.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://cleaver.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://lynch.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://lynch.house.gov/sitemap.xml
+
+Checking: https://graves.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://mccollum.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://hoyer.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://ramirez.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://mcgarvey.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://mcgarvey.house.gov/sitemap.xml
+
+Checking: https://yakym.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://yakym.house.gov/sitemap.xml
+
+Checking: https://troycarter.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://letlow.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://spartz.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://marymiller.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://mann.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://clyde.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://davids.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://baird.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://casten.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://casten.house.gov/sitemap.xml
+
+Checking: https://loudermilk.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://loudermilk.house.gov/sitemap_index.xml
+
+Checking: https://fulcher.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://fulcher.house.gov/sitemap.xml
+
+Checking: https://mcbath.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://mcbath.house.gov/sitemap.xml
+
+Checking: https://estes.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://mikejohnson.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://clayhiggins.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://clayhiggins.house.gov/sitemap.xml
+
+Checking: https://krishnamoorthi.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://comer.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://comer.house.gov/sitemap.xml
+
+Checking: https://bost.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://bost.house.gov/sitemap.xml
+
+Checking: https://allen.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://schneider.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://austinscott.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://austinscott.house.gov/sitemap.xml
+
+Checking: https://quigley.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://foster.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://carson.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://robinkelly.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://buddycarter.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://schakowsky.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://davis.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://halrogers.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://halrogers.house.gov/sitemap.xml
+
+Checking: https://davidscott.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://case.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://nikemawilliams.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://nikemawilliams.house.gov/sitemap.xml
+
+Checking: https://salazar.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://gimenez.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://gimenez.house.gov/sitemap.xml
+
+Checking: https://cammack.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://boebert.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://steube.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://steube.house.gov/wp-sitemap.xml
+
+Checking: https://crow.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://neguse.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://levin.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://levin.house.gov/sitemap.xml
+
+Checking: https://mast.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://mast.house.gov/sitemap.xml
+
+Checking: https://soto.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://rutherford.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://dunn.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://dunn.house.gov/sitemap.xml
+
+Checking: https://barragan.house.gov
+    -> Result: Sitemap Found (from robots.txt): https://barragan.house.gov/wp-sitemap.xml
+
+Checking: https://frankel.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://takano.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://takano.house.gov/sitemap.xml
+
+Checking: https://wilson.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://webster.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap Found (standard location): https://webster.house.gov/sitemap.xml
+
+Checking: https://hankjohnson.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://bilirakis.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://courtney.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
+    -> Result: Sitemap NOT Found
+
+Checking: https://himes.house.gov
+    Sitemap not found via robots.txt, checking standard locations...
