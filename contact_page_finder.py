@@ -133,7 +133,7 @@ def check_contact_page(member_data: tuple[str, str | None]) -> tuple[str, str] |
         member_data: A tuple containing (bioguideid, base_url).
 
     Returns:
-        A tuple (bioguideid, base_url) if the contact page exists,
+        A tuple (bioguideid, contact_url) if the contact page exists,
         otherwise None.
     """
     bioguideid, base_url = member_data
@@ -162,7 +162,8 @@ def check_contact_page(member_data: tuple[str, str | None]) -> tuple[str, str] |
         # Accept 200 OK, or 301/302 Redirects as indicators of a contact page
         if response.status_code in [200, 301, 302]:
             # We assume a 200 or a redirect from /contact means a contact page exists
-            return (bioguideid, base_url)
+            # Return the actual contact URL checked
+            return (bioguideid, contact_url)
         else:
             # log.debug(f"Contact page not found for {bioguideid} (URL: {contact_url}, Status: {response.status_code})")
             return None
@@ -243,9 +244,9 @@ def main():
                 continue # Skip processing if URL was None
 
             try:
-                result = future.result() # result is (bioguideid, base_url) or None
+                result = future.result() # result is (bioguideid, contact_url) or None
                 if result:
-                    found_contacts.append(result)
+                    found_contacts.append(result) # Append the (bioguideid, contact_url) tuple
                 else:
                     not_found_count += 1
             except Exception as exc:
