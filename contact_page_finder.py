@@ -6,7 +6,7 @@ import concurrent.futures
 import logging
 import sys
 from urllib.parse import urljoin, urlparse
-
+import os
 import psycopg2 # Database connector
 import requests
 from tqdm import tqdm
@@ -14,7 +14,8 @@ from tqdm import tqdm
 # --- Configuration ---
 
 # Database connection URI
-DATABASE_URI = "postgresql://postgres:postgres@localhost/gov"
+#DATABASE_URI = "postgresql://postgres:postgres@localhost/gov"
+DATABASE_URI = os.environ["DATABASE_URI"]
 # Default number of concurrent workers
 DEFAULT_WORKERS = 5
 # Path to check for the contact page
