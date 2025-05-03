@@ -1,0 +1,1 @@
+extract html uses heuristics to then pass to LLM, if it doesn't find anything, perhaps we could go back and submit the *entire* html page for analysis. heuristics will hopefully be good enough as a first step though. 

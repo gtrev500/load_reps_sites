@@ -1,2 +1,9 @@
 .aider*
 .venv/
+
+**/.claude/settings.local.json
+
+__pycache__
+cache
+data
+logs/
