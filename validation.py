@@ -6,6 +6,7 @@ import sys
 import json
 import time
 import shutil
+import subprocess
 from typing import Dict, List, Optional, Any, Tuple
 import webbrowser
 import tempfile
@@ -254,10 +255,58 @@ class ValidationInterface:
         """
         try:
             url = f"file://{os.path.abspath(validation_html_path)}"
-            log.info(f"Opening validation interface at {url}")
+            # Try zen-browser first
+            try:
+                log.info(f"Attempting to open validation interface with zen-browser at {url}")
+                subprocess.run(['zen-browser', '--new-window', url], check=True)
+                log.info(f"Successfully opened with zen-browser: {url}")
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                log.warning(f"zen-browser command failed or not found. Falling back to default browser.")
+                try:
+                    # Fallback to webbrowser.open
+                    log.info(f"Opening validation interface with default browser at {url}")
+                    webbrowser.open(url, new=1) # new=1 requests a new window
+                except Exception as e_web:
+                    log.error(f"Failed to open validation interface with fallback browser: {e_web}")
+        except Exception as e_main:
+            # Catch any other unexpected error during the initial setup (e.g., os.path.abspath)
+            log.error(f"Failed to open validation interface: {e_main}")
+    
+    def open_validation_interface_nonblocking(self, validation_html_path: str) -> None:
+        """Open the validation interface in a web browser without blocking.
+        
+        Args:
+            validation_html_path: Path to the validation HTML file
+        """
+        try:
+            url = f"file://{os.path.abspath(validation_html_path)}"
+            log.info(f"Opening validation interface at {url} (non-blocking)")
             
-            # Open the browser with the HTML file
-            webbrowser.open(url)
+            # Define browser commands, prioritizing zen-browser
+            browser_commands = [
+                ['zen-browser', '--new-window', url], # Prioritize zen-browser with new window
+                ['xdg-open', url],    # Linux default
+                ['open', url],        # macOS
+            ]
+            
+            for cmd in browser_commands:
+                try:
+                    # Use Popen with detached process to avoid blocking
+                    subprocess.Popen(
+                        cmd,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                        start_new_session=True
+                    )
+                    log.info(f"Successfully launched browser with command: {cmd}")
+                    return
+                except (subprocess.SubprocessError, FileNotFoundError):
+                    log.debug(f"Command {cmd} failed or not found, trying next.")
+                    continue # Try the next command
+            
+            # Fallback to webbrowser module if all specific subprocess approaches fail
+            log.warning("All specific browser commands failed, falling back to webbrowser.open")
+            webbrowser.open(url, new=1) # new=1 requests a new window
             
         except Exception as e:
             log.error(f"Failed to open validation interface: {e}")

@@ -193,6 +193,25 @@ class StagingManager:
         
         return pending_bioguides
     
+    def load_all_extractions(self) -> List[str]:
+        """Load all extractions regardless of status.
+        
+        Returns:
+            List of all bioguide IDs in staging
+        """
+        all_bioguides = []
+        
+        try:
+            with open(self.queue_file, 'r', encoding='utf-8') as f:
+                queue_data = json.load(f)
+            
+            all_bioguides = list(queue_data["extractions"].keys())
+                    
+        except Exception as e:
+            log.error(f"Failed to load all extractions: {e}")
+        
+        return all_bioguides
+    
     def get_extraction_data(self, bioguide_id: str) -> Optional[ExtractionData]:
         """Get extraction data for a bioguide ID.
         
