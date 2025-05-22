@@ -12,6 +12,20 @@ import tempfile
 import html
 from bs4 import BeautifulSoup, Comment, Doctype, CData, NavigableString, Tag
 
+# --- Field Color Mapping ---
+FIELD_COLOR_MAP = {
+    "address": "#90EE90",       # lightgreen
+    "zip": "#F08080",           # lightcoral
+    "phone": "#ADD8E6",         # lightblue
+    "city": "#FFD700",          # gold
+    "state": "#DA70D6",         # orchid
+    "office_type": "#E6E6FA",   # lavender
+    "building": "#D2B48C",       # tan
+    "suite": "#FFB6C1",         # lightpink
+    "fax": "#B0E0E6",           # powderblue
+    "hours": "#FAFAD2",         # lightgoldenrodyellow
+    "default_highlight": "yellow" # Fallback for general highlights
+}
 
 # --- Logging Setup ---
 logging.basicConfig(
@@ -86,8 +100,17 @@ class ValidationInterface:
                         if i < len(parts) - 1:  # Add mark tag if not the last part
                             mark_tag = soup.new_tag("mark")
                             mark_tag.string = text_val
-                            # Add general class and field-specific class
-                            mark_tag.attrs['class'] = f'highlighted-llm-output field-{field_name}'
+                            
+                            current_field_color = FIELD_COLOR_MAP.get(field_name, FIELD_COLOR_MAP["default_highlight"])
+                            
+                            # Apply all styles inline for <mark> tags to ensure precedence
+                            mark_tag.attrs['style'] = (
+                                f"background-color: {current_field_color} !important; "
+                                f"color: black !important; "
+                                f"font-weight: bold !important; "
+                                f"padding: 0.1em 0.2em !important; "
+                                f"border-radius: 0.2em !important;"
+                            )
                             new_node_content.append(mark_tag)
                     
                     # Replace the original node with the new sequence of strings and tags
@@ -146,21 +169,20 @@ class ValidationInterface:
                     padding: 0.1em 0.2em; 
                     border-radius: 0.2em; 
                 }}
-                /* Field-specific background colors. Applied to <mark> in iframe and <span> in table */
-                mark.highlighted-llm-output.field-address, span.highlighted-llm-output.field-address {{ background-color: #90EE90 !important; }} /* lightgreen */
-                mark.highlighted-llm-output.field-zip, span.highlighted-llm-output.field-zip {{ background-color: #F08080 !important; }} /* lightcoral */
-                mark.highlighted-llm-output.field-phone, span.highlighted-llm-output.field-phone {{ background-color: #ADD8E6 !important; }} /* lightblue */
-                mark.highlighted-llm-output.field-city, span.highlighted-llm-output.field-city {{ background-color: #FFD700 !important; }} /* gold */
-                mark.highlighted-llm-output.field-state, span.highlighted-llm-output.field-state {{ background-color: #DA70D6 !important; }} /* orchid */
-                mark.highlighted-llm-output.field-office_type, span.highlighted-llm-output.field-office_type {{ background-color: #E6E6FA !important; }} /* lavender */
-                mark.highlighted-llm-output.field-building, span.highlighted-llm-output.field-building {{ background-color: #D2B48C !important; }} /* tan */
-                mark.highlighted-llm-output.field-suite, span.highlighted-llm-output.field-suite {{ background-color: #FFB6C1 !important; }} /* lightpink */
-                mark.highlighted-llm-output.field-fax, span.highlighted-llm-output.field-fax {{ background-color: #B0E0E6 !important; }} /* powderblue */
-                mark.highlighted-llm-output.field-hours, span.highlighted-llm-output.field-hours {{ background-color: #FAFAD2 !important; }} /* lightgoldenrodyellow */
-                /* Default highlight for any other fields not specified or for general marks if needed */
-                mark.highlighted-llm-output:not([class*="field-"]), 
+                /* Field-specific background colors for SPANs in the table. <mark> tags use inline styles. */
+                span.highlighted-llm-output.field-address {{ background-color: {FIELD_COLOR_MAP['address']} !important; }}
+                span.highlighted-llm-output.field-zip {{ background-color: {FIELD_COLOR_MAP['zip']} !important; }}
+                span.highlighted-llm-output.field-phone {{ background-color: {FIELD_COLOR_MAP['phone']} !important; }}
+                span.highlighted-llm-output.field-city {{ background-color: {FIELD_COLOR_MAP['city']} !important; }}
+                span.highlighted-llm-output.field-state {{ background-color: {FIELD_COLOR_MAP['state']} !important; }}
+                span.highlighted-llm-output.field-office_type {{ background-color: {FIELD_COLOR_MAP['office_type']} !important; }}
+                span.highlighted-llm-output.field-building {{ background-color: {FIELD_COLOR_MAP['building']} !important; }}
+                span.highlighted-llm-output.field-suite {{ background-color: {FIELD_COLOR_MAP['suite']} !important; }}
+                span.highlighted-llm-output.field-fax {{ background-color: {FIELD_COLOR_MAP['fax']} !important; }}
+                span.highlighted-llm-output.field-hours {{ background-color: {FIELD_COLOR_MAP['hours']} !important; }}
+                /* Default highlight for SPANs without a specific field class */
                 span.highlighted-llm-output:not([class*="field-"]) {{ 
-                    background-color: yellow; /* This fallback should not use !important */
+                    background-color: {FIELD_COLOR_MAP['default_highlight']}; /* This fallback should not use !important for spans unless necessary */
                 }}
             </style>
         </head>
