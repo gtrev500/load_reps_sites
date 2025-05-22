@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 * Run scraper: `python district_office_scraper.py --bioguide-id=<ID> --db-uri="postgresql://postgres:postgres@localhost:5432/gov" --api-key="<API_KEY>"`
 * Skip validation: Add `--skip-validation` flag
 * Skip storage: Add `--skip-storage` flag
+* Force processing: Add `--force` flag to process even if data exists
 * Test without API calls: `python test_scraper.py`
 * Install dependencies: `pip install -r requirements.txt` or `uv pip install -r requirements.txt`
 

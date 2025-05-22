@@ -52,9 +52,6 @@ def process_single_bioguide(
             log.info(f"District office information already exists for {bioguide_id}")
             tracker.log_process_end(log_path, "skipped", "District office information already exists")
             return True
-        elif force and database.check_district_office_exists(bioguide_id, database_uri):
-            log.info(f"Force mode: processing {bioguide_id} even though data exists (will not overwrite database)")
-            skip_storage = True  # Override storage to prevent overwriting existing data
         
         # Step 2: Get the contact page URL
         contact_url = database.get_contact_page_url(bioguide_id, database_uri)
@@ -188,7 +185,7 @@ def main():
     parser.add_argument(
         "--force",
         action="store_true",
-        help="Force processing even if district office data already exists (does not overwrite database)"
+        help="Force processing even if district office data already exists"
     )
     parser.add_argument(
         "-v",
