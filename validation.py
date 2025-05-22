@@ -56,21 +56,26 @@ class ValidationInterface:
 
         # --- Highlight LLM output in the original HTML content ---
         soup = BeautifulSoup(html_content, 'html.parser')
-        values_to_highlight = set()
-        for office in extracted_offices:
-            for key, value in office.items():
-                if isinstance(value, str) and value.strip():
-                    values_to_highlight.add(value)
         
-        # Sort by length (descending) to handle substrings correctly (e.g., "Main St" vs "123 Main St")
-        sorted_values = sorted(list(values_to_highlight), key=len, reverse=True)
+        field_values_to_highlight = [] # Store (value, field_name) tuples
+        for office in extracted_offices:
+            for field_name, value in office.items(): # Use field_name (formerly key)
+                if isinstance(value, str) and value.strip():
+                    field_values_to_highlight.append((value, field_name.lower()))
+        
+        # Sort by length of value (descending) to handle substrings correctly
+        # (e.g., "Main St" within "123 Main St")
+        sorted_field_values = sorted(field_values_to_highlight, key=lambda item: len(item[0]), reverse=True)
 
-        for text_val in sorted_values:
-            # Find all text nodes
+        for text_val, field_name in sorted_field_values: # Iterate with field_name
+            # Find all text nodes in the current state of the soup.
+            # This is done in each iteration because the soup is modified.
             text_nodes = soup.find_all(text=True)
             for node in text_nodes:
-                if isinstance(node, (Comment, Doctype, CData)) or node.parent.name in ['script', 'style', 'mark']:
-                    continue # Don't search in comments, doctypes, cdata, scripts, styles, or existing marks
+                # Skip nodes that are comments, doctypes, cdata, or inside script, style, or existing mark tags.
+                if isinstance(node, (Comment, Doctype, CData)) or \
+                   (node.parent and node.parent.name in ['script', 'style', 'mark']):
+                    continue
 
                 if text_val in node.string:
                     new_node_content = []
@@ -78,14 +83,15 @@ class ValidationInterface:
                     for i, part_text in enumerate(parts):
                         if part_text:
                             new_node_content.append(NavigableString(part_text))
-                        if i < len(parts) - 1: # Add mark tag if not the last part
+                        if i < len(parts) - 1:  # Add mark tag if not the last part
                             mark_tag = soup.new_tag("mark")
                             mark_tag.string = text_val
-                            mark_tag.attrs['class'] = 'highlighted-llm-output'
+                            # Add general class and field-specific class
+                            mark_tag.attrs['class'] = f'highlighted-llm-output field-{field_name}'
                             new_node_content.append(mark_tag)
                     
                     # Replace the original node with the new sequence of strings and tags
-                    if new_node_content: # only replace if there's actual content
+                    if new_node_content:
                         node.replace_with(*new_node_content)
         
         highlighted_html_for_iframe = str(soup).replace("'", "&apos;")
