@@ -104,8 +104,10 @@ class ValidationInterface:
             
             # Add each field
             for field in ["office_type", "building", "address", "suite", "city", "state", "zip", "phone", "fax", "hours"]:
-                if field in office:
-                    offices_html += f"<tr><td><strong>{field.capitalize()}</strong></td><td>{office[field]}</td></tr>"
+                if field in office and office[field] is not None:
+                    field_value = html.escape(str(office[field])) # Escape HTML characters in the value
+                    # Wrap the value in a span with the field-specific class for coloring
+                    offices_html += f"<tr><td><strong>{field.capitalize()}</strong></td><td><span class='highlighted-llm-output field-{field.lower()}'>{field_value}</span></td></tr>"
             
             offices_html += "</table></div>"
         
