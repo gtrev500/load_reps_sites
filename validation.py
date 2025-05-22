@@ -53,13 +53,20 @@ log = logging.getLogger(__name__)
 class ValidationInterface:
     """Class for handling human validation of extracted district office information."""
     
-    def __init__(self):
-        """Initialize the validation interface."""
+    def __init__(self, browser_validation=False):
+        """Initialize the validation interface.
+        
+        Args:
+            browser_validation: Whether to use browser-based validation (default: False)
+        """
         # Create directories for validated and rejected data
         self.validated_dir = os.path.join(os.path.dirname(__file__), "data", "validated")
         self.rejected_dir = os.path.join(os.path.dirname(__file__), "data", "rejected")
         os.makedirs(self.validated_dir, exist_ok=True)
         os.makedirs(self.rejected_dir, exist_ok=True)
+        
+        self.browser_validation = browser_validation
+        self.validation_server = None
 
     def generate_validation_html(
         self,
@@ -168,6 +175,10 @@ class ValidationInterface:
         if not extracted_offices:
             offices_html = "<p>No district offices were found.</p>"
         
+        # Determine validation mode
+        validation_mode = "browser" if self.browser_validation and self.validation_server else "terminal"
+        validation_port = self.validation_server.port if self.validation_server else 0
+        
         # Create the validation HTML
         validation_html = f"""
         <!DOCTYPE html>
@@ -186,6 +197,41 @@ class ValidationInterface:
                 .original-html-iframe {{ width: 100%; height: 600px; border: 1px solid #ddd; }}
                 .llm-input-iframe {{ width: 100%; height: 300px; border: 1px solid #ccc; margin-bottom:20px;}}
                 .note {{ background-color: #f8f9fa; padding: 10px; border-left: 4px solid #007bff; margin-bottom: 20px; }}
+                .validation-buttons {{
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    display: flex;
+                    gap: 10px;
+                    background: white;
+                    padding: 15px;
+                    border-radius: 10px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                    z-index: 1000;
+                }}
+                .validation-button {{
+                    padding: 10px 20px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }}
+                .accept-button {{
+                    background-color: #4CAF50;
+                    color: white;
+                }}
+                .accept-button:hover {{
+                    background-color: #45a049;
+                }}
+                .reject-button {{
+                    background-color: #f44336;
+                    color: white;
+                }}
+                .reject-button:hover {{
+                    background-color: #da190b;
+                }}
                 .highlighted-llm-output {{ 
                     /* This class is used for both <mark> in iframe and <span> in the table */
                     color: black; /* Text color for highlighted items */
@@ -216,8 +262,8 @@ class ValidationInterface:
             
             <div class="note">
                 <p><strong>Note:</strong> Review the LLM's input and output (left panel) and compare with the original HTML (right panel). 
-                Highlighted text in the right panel corresponds to data extracted by the LLM.
-                Then return to the command line to confirm.</p>
+                Highlighted text in the right panel corresponds to data extracted by the LLM.</p>
+                {'<p><strong>Click the buttons below to accept or reject the extraction.</strong></p>' if validation_mode == 'browser' else '<p>Then return to the command line to confirm.</p>'}
             </div>
             
             <div class="container">
@@ -236,6 +282,28 @@ class ValidationInterface:
                     <iframe class="original-html-iframe" srcdoc='{highlighted_html_for_iframe}' title="Original HTML with Highlights"></iframe>
                 </div>
             </div>
+            
+            {'<div class="validation-buttons"><button class="validation-button accept-button" onclick="submitValidation(\'accept\')">✓ Accept</button><button class="validation-button reject-button" onclick="submitValidation(\'reject\')">✗ Reject</button></div>' if validation_mode == 'browser' else ''}
+            
+            {f'''
+            <script>
+            function submitValidation(decision) {{
+                const url = `http://localhost:{validation_port}/validate?decision=${{decision}}&bioguide_id={bioguide_id}`;
+                fetch(url)
+                    .then(response => {{
+                        if (response.ok) {{
+                            document.body.innerHTML = response.text().then(html => document.body.innerHTML = html);
+                        }} else {{
+                            alert('Error submitting validation. Please check the console.');
+                        }}
+                    }})
+                    .catch(error => {{
+                        console.error('Error:', error);
+                        alert('Failed to submit validation. Please use the terminal instead.');
+                    }});
+            }}
+            </script>
+            ''' if validation_mode == 'browser' else ''}
         </body>
         </html>
         """
@@ -331,6 +399,12 @@ class ValidationInterface:
         Returns:
             Tuple of (is_validated, validated_offices)
         """
+        # Start validation server if using browser validation
+        if self.browser_validation:
+            from validation_server import ValidationServer
+            self.validation_server = ValidationServer()
+            self.validation_server.start()
+            
         # Generate the validation HTML
         validation_html_path = self.generate_validation_html(
             bioguide_id, html_content, offices, url, contact_sections
@@ -339,20 +413,49 @@ class ValidationInterface:
         # Open the validation interface in browser
         self.open_validation_interface(validation_html_path)
         
-        # Prompt for validation in the command line
-        print("\nA browser window should have opened with the validation interface.")
-        print(f"Please review the district office information for {bioguide_id}.")
-        
-        # Get user input
         is_valid = None
-        while is_valid is None:
-            response = input("Is the extracted information correct? (Y/n): ").strip().lower()
-            if response == "" or response == "y":
-                is_valid = True
-            elif response == "n":
-                is_valid = False
+        
+        if self.browser_validation and self.validation_server:
+            # Browser-based validation
+            print("\nA browser window should have opened with the validation interface.")
+            print(f"Please review the district office information for {bioguide_id}.")
+            print("Click the Accept or Reject button in the browser to continue...")
+            
+            # Wait for browser response
+            result = self.validation_server.wait_for_validation(timeout=300)
+            
+            if result:
+                is_valid = result['decision'] == 'accept'
+                print(f"\nValidation {result['decision']}ed via browser")
             else:
-                print("Please enter 'Y' or 'n'")
+                print("\nTimeout waiting for browser response. Falling back to terminal input.")
+                # Fall back to terminal input
+                while is_valid is None:
+                    response = input("Is the extracted information correct? (Y/n): ").strip().lower()
+                    if response == "" or response == "y":
+                        is_valid = True
+                    elif response == "n":
+                        is_valid = False
+                    else:
+                        print("Please enter 'Y' or 'n'")
+            
+            # Stop the validation server
+            self.validation_server.stop()
+            self.validation_server = None
+        else:
+            # Terminal-based validation (original behavior)
+            print("\nA browser window should have opened with the validation interface.")
+            print(f"Please review the district office information for {bioguide_id}.")
+            
+            # Get user input
+            while is_valid is None:
+                response = input("Is the extracted information correct? (Y/n): ").strip().lower()
+                if response == "" or response == "y":
+                    is_valid = True
+                elif response == "n":
+                    is_valid = False
+                else:
+                    print("Please enter 'Y' or 'n'")
         
         if is_valid:
             log.info(f"User approved office data for {bioguide_id}")

@@ -24,7 +24,8 @@ def validate_from_staging(
     bioguide_id: str,
     staging_manager: StagingManager,
     database_uri: Optional[str] = None,
-    auto_store: bool = False
+    auto_store: bool = False,
+    browser_validation: bool = False
 ) -> bool:
     """Validate a single extraction from staging.
     
@@ -33,6 +34,7 @@ def validate_from_staging(
         staging_manager: StagingManager instance
         database_uri: Database URI for auto-storage
         auto_store: Whether to automatically store validated results
+        browser_validation: Whether to use browser-based validation
         
     Returns:
         True if validation was successful, False otherwise
@@ -71,7 +73,7 @@ def validate_from_staging(
                 log.warning(f"Contact sections file not found: {contact_sections_path}")
         
         # Initialize validation interface
-        validation_interface = ValidationInterface()
+        validation_interface = ValidationInterface(browser_validation=browser_validation)
         
         # Perform validation
         log.info(f"Starting validation for {bioguide_id}")
@@ -120,7 +122,8 @@ def validate_all_pending(
     staging_manager: StagingManager,
     database_uri: Optional[str] = None,
     auto_store: bool = False,
-    batch_size: Optional[int] = None
+    batch_size: Optional[int] = None,
+    browser_validation: bool = False
 ) -> Dict[str, Any]:
     """Validate all pending extractions.
     
@@ -129,6 +132,7 @@ def validate_all_pending(
         database_uri: Database URI for auto-storage
         auto_store: Whether to automatically store validated results
         batch_size: Maximum number of extractions to validate in this run
+        browser_validation: Whether to use browser-based validation
         
     Returns:
         Dictionary with validation summary
@@ -169,7 +173,7 @@ def validate_all_pending(
                 continue
             
             # Perform validation
-            success = validate_from_staging(bioguide_id, staging_manager, database_uri, auto_store)
+            success = validate_from_staging(bioguide_id, staging_manager, database_uri, auto_store, browser_validation)
             processed += 1
             
             if success:
@@ -203,7 +207,8 @@ def validate_all_pending(
 def open_multiple_validation_windows(
     staging_manager: StagingManager,
     bioguide_ids: List[str],
-    max_windows: int = 5
+    max_windows: int = 5,
+    browser_validation: bool = False
 ) -> List[str]:
     """Open validation windows for multiple bioguide IDs simultaneously.
     
@@ -213,11 +218,12 @@ def open_multiple_validation_windows(
         staging_manager: StagingManager instance
         bioguide_ids: List of bioguide IDs to open validation for
         max_windows: Maximum number of browser windows to open at once
+        browser_validation: Whether to use browser-based validation
         
     Returns:
         List of bioguide IDs that had validation windows opened successfully
     """
-    validation_interface = ValidationInterface()
+    validation_interface = ValidationInterface(browser_validation=browser_validation)
     opened_successfully = []
     
     # Limit the number of windows to prevent overwhelming the system
@@ -299,6 +305,11 @@ def main():
         help="Automatically store validated results in the database"
     )
     parser.add_argument(
+        "--browser-validation",
+        action="store_true",
+        help="Use browser-based validation with Accept/Reject buttons"
+    )
+    parser.add_argument(
         "--force",
         action="store_true",
         help="Re-validate previously processed extractions"
@@ -373,7 +384,8 @@ def main():
             args.bioguide_id,
             staging_manager,
             database_uri,
-            args.auto_store
+            args.auto_store,
+            args.browser_validation
         )
         
         if success:
@@ -390,7 +402,8 @@ def main():
             staging_manager,
             database_uri,
             args.auto_store,
-            args.batch_size
+            args.batch_size,
+            args.browser_validation
         )
         
         log.info(f"Validation complete: {summary}")
@@ -434,7 +447,8 @@ def main():
         opened_successfully = open_multiple_validation_windows(
             staging_manager,
             bioguide_ids,
-            args.max_windows
+            args.max_windows,
+            args.browser_validation
         )
         
         log.info(f"Opened validation windows for {len(opened_successfully)} bioguide IDs:")

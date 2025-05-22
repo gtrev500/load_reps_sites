@@ -102,7 +102,9 @@ def process_single_bioguide(
         
         # Step 7: Validate the extracted information (if not skipped)
         if not skip_validation:
-            validation_interface = ValidationInterface()
+            # Check if browser validation is requested
+            browser_validation = kwargs.get('browser_validation', False)
+            validation_interface = ValidationInterface(browser_validation=browser_validation)
             # contact_sections is already defined and available here
             validation_html_path = validation_interface.generate_validation_html(
                 bioguide_id, html_content, extracted_offices, contact_url, contact_sections
@@ -199,6 +201,11 @@ def main():
         help="Skip human validation of extracted information"
     )
     parser.add_argument(
+        "--browser-validation",
+        action="store_true",
+        help="Use browser-based validation with Accept/Reject buttons"
+    )
+    parser.add_argument(
         "--skip-storage",
         action="store_true",
         help="Skip storing information in the database"
@@ -278,7 +285,8 @@ def main():
             skip_storage,
             args.force,
             async_mode,
-            staging_manager
+            staging_manager,
+            browser_validation=args.browser_validation
         )
         
         if success:
@@ -311,7 +319,8 @@ def main():
                 skip_storage,
                 args.force,
                 async_mode,
-                staging_manager
+                staging_manager,
+                browser_validation=args.browser_validation
             )
             
             if success:
