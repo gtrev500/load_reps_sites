@@ -5,6 +5,7 @@
 2. **Mixed concerns**: Entry points mixed with library code
 3. **Tight coupling**: `async_scraper.py` imports from `district_office_scraper.py`
 4. **Scattered validation**: Validation logic spread across 3 files
+5. **Dual workflow complexity**: Maintaining both sync and async paths adds unnecessary complexity
 
 ## Proposed Module Structure
 
@@ -35,13 +36,15 @@ load_reps_sites/
 │           └── logging.py          # Logging and provenance tracking
 ├── cli/
 │   ├── __init__.py
-│   ├── scrape.py                   # Main CLI entry point (was district_office_scraper.py)
-│   ├── scrape_async.py             # Async scraping CLI (was async_scraper.py)
+│   ├── scrape.py                   # Main async CLI entry point (consolidates both workflows)
 │   ├── validate.py                 # Validation CLI (was validation_runner.py)
 │   └── find_contacts.py            # Contact finder CLI
 ├── tests/
 │   ├── __init__.py
+│   ├── conftest.py                 # pytest fixtures and configuration
 │   ├── test_scraper.py
+│   ├── test_validation.py
+│   ├── test_llm_processor.py
 │   └── test_integration.py
 ├── pyproject.toml                  # Modern Python packaging
 ├── requirements.txt
@@ -57,17 +60,21 @@ load_reps_sites/
 4. Ensure all existing functionality works
 
 ### Phase 2: Refactor Core Issues (Medium Risk)
-1. **Decouple async_scraper from district_office_scraper**:
+1. **Consolidate to async-first architecture**:
+   - Merge sync and async workflows into single async implementation
+   - Use `asyncio.run()` for CLI entry points
    - Extract shared logic into `src/district_offices/core/extractor.py`
-   - Both CLIs import from the shared module
+   - Remove redundant synchronous code paths
    
 2. **Consolidate validation**:
    - Merge validation logic into cohesive module
    - Clear separation: interface.py (UI), server.py (HTTP), runner.py (orchestration)
+   - Use async functions throughout validation pipeline
 
-3. **Create connection pooling**:
-   - Add `src/district_offices/storage/connection.py` for shared DB connections
-   - Reduce connection overhead
+3. **Create async connection pooling**:
+   - Add `src/district_offices/storage/connection.py` for shared async DB connections
+   - Use `asyncpg` for PostgreSQL async support
+   - Reduce connection overhead with connection pool
 
 ### Phase 3: Modernize Packaging (Low Risk)
 1. Add `pyproject.toml` for modern Python packaging
@@ -78,10 +85,12 @@ load_reps_sites/
 ## Benefits
 
 1. **Clear Architecture**: Module boundaries make the codebase easier to understand
-2. **Better Testing**: Can test modules in isolation
+2. **Better Testing**: Can test modules in isolation with pytest
 3. **Reduced Coupling**: Shared code in dedicated modules
 4. **Maintainability**: Related code grouped together
 5. **Professional Structure**: Follows Python packaging best practices
+6. **Simplified Workflow**: Single async-first approach eliminates dual-path complexity
+7. **Better Performance**: Async operations enable concurrent processing by default
 
 ## Example Import Changes
 
@@ -105,6 +114,33 @@ from district_offices.core.scraper import extract_html, clean_html
 - CLI entry points will have new names (can keep old names as aliases)
 - Need to install package for imports to work: `uv pip install -e .`
 
+## Testing Strategy
+
+This project uses `pytest` for all testing:
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=district_offices --cov-report=html
+
+# Run specific test module
+pytest tests/test_scraper.py
+
+# Run with verbose output
+pytest -v
+
+# Run only async tests
+pytest -k "async"
+```
+
+### Test Structure
+- `conftest.py`: Shared fixtures for database connections, mock responses, etc.
+- Unit tests for each module (test isolation)
+- Integration tests for end-to-end workflows
+- Async test support with `pytest-asyncio`
+
 ## Package Management with uv
 
 This project uses `uv` for Python environment management:
@@ -123,6 +159,9 @@ uv pip install -r requirements.txt
 
 # Install package in development mode
 uv pip install -e .
+
+# Install test dependencies
+uv pip install pytest pytest-asyncio pytest-cov
 
 # Add new dependencies
 uv pip install <package>
