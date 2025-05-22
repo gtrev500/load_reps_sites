@@ -98,12 +98,13 @@ def process_single_bioguide(
         # Step 7: Validate the extracted information (if not skipped)
         if not skip_validation:
             validation_interface = ValidationInterface()
+            # contact_sections is already defined and available here
             validation_html_path = validation_interface.generate_validation_html(
-                bioguide_id, html_content, extracted_offices, contact_url
+                bioguide_id, html_content, extracted_offices, contact_url, contact_sections
             )
             
             is_valid, validated_offices = validation_interface.validate_office_data(
-                bioguide_id, extracted_offices, html_content, contact_url
+                bioguide_id, extracted_offices, html_content, contact_url, contact_sections
             )
             
             tracker.log_validation_artifacts(log_path, validation_html_path, extracted_offices, is_valid)

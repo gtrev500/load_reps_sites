@@ -9,6 +9,9 @@ import shutil
 from typing import Dict, List, Optional, Any, Tuple
 import webbrowser
 import tempfile
+import html
+from bs4 import BeautifulSoup, Comment, Doctype, CData, NavigableString, Tag
+
 
 # --- Logging Setup ---
 logging.basicConfig(
@@ -26,13 +29,14 @@ class ValidationInterface:
         self.rejected_dir = os.path.join(os.path.dirname(__file__), "data", "rejected")
         os.makedirs(self.validated_dir, exist_ok=True)
         os.makedirs(self.rejected_dir, exist_ok=True)
-    
+
     def generate_validation_html(
-        self, 
-        bioguide_id: str, 
-        html_content: str, 
+        self,
+        bioguide_id: str,
+        html_content: str,
         extracted_offices: List[Dict[str, Any]],
-        url: str
+        url: str,
+        contact_sections: str
     ) -> str:
         """Generate an HTML page for validation.
         
@@ -41,6 +45,7 @@ class ValidationInterface:
             html_content: The HTML content from the representative's page
             extracted_offices: The extracted office information
             url: The URL that was scraped
+            contact_sections: The HTML sections fed to the LLM
             
         Returns:
             Path to the generated HTML file
@@ -48,8 +53,50 @@ class ValidationInterface:
         # Create a temporary HTML file for validation
         temp_dir = tempfile.mkdtemp()
         html_path = os.path.join(temp_dir, f"{bioguide_id}_validation.html")
+
+        # --- Highlight LLM output in the original HTML content ---
+        soup = BeautifulSoup(html_content, 'html.parser')
+        values_to_highlight = set()
+        for office in extracted_offices:
+            for key, value in office.items():
+                if isinstance(value, str) and value.strip():
+                    values_to_highlight.add(value)
         
-        # Format the office information as HTML
+        # Sort by length (descending) to handle substrings correctly (e.g., "Main St" vs "123 Main St")
+        sorted_values = sorted(list(values_to_highlight), key=len, reverse=True)
+
+        for text_val in sorted_values:
+            # Find all text nodes
+            text_nodes = soup.find_all(text=True)
+            for node in text_nodes:
+                if isinstance(node, (Comment, Doctype, CData)) or node.parent.name in ['script', 'style', 'mark']:
+                    continue # Don't search in comments, doctypes, cdata, scripts, styles, or existing marks
+
+                if text_val in node.string:
+                    new_node_content = []
+                    parts = node.string.split(text_val)
+                    for i, part_text in enumerate(parts):
+                        if part_text:
+                            new_node_content.append(NavigableString(part_text))
+                        if i < len(parts) - 1: # Add mark tag if not the last part
+                            mark_tag = soup.new_tag("mark")
+                            mark_tag.string = text_val
+                            mark_tag.attrs['class'] = 'highlighted-llm-output'
+                            new_node_content.append(mark_tag)
+                    
+                    # Replace the original node with the new sequence of strings and tags
+                    if new_node_content: # only replace if there's actual content
+                        node.replace_with(*new_node_content)
+        
+        highlighted_html_for_iframe = str(soup).replace("'", "&apos;")
+
+        # --- Prepare contact_sections for iframe display ---
+        # Ensure contact_sections is a string, escape for srcdoc
+        contact_sections_str = contact_sections if isinstance(contact_sections, str) else ""
+        contact_sections_escaped_for_iframe = html.escape(contact_sections_str).replace("'", "&apos;")
+
+
+        # --- Format the extracted office information as HTML ---
         offices_html = ""
         for i, office in enumerate(extracted_offices, 1):
             offices_html += f"<div class='office'><h3>Office #{i}</h3>"
@@ -81,8 +128,10 @@ class ValidationInterface:
                 table {{ width: 100%; border-collapse: collapse; }}
                 td {{ padding: 5px; border-bottom: 1px solid #eee; }}
                 h2 {{ color: #2c3e50; }}
-                iframe {{ width: 100%; height: 500px; border: 1px solid #ddd; }}
+                .original-html-iframe {{ width: 100%; height: 600px; border: 1px solid #ddd; }}
+                .llm-input-iframe {{ width: 100%; height: 300px; border: 1px solid #ccc; margin-bottom:20px;}}
                 .note {{ background-color: #f8f9fa; padding: 10px; border-left: 4px solid #007bff; margin-bottom: 20px; }}
+                .highlighted-llm-output {{ background-color: yellow; color: black; font-weight: bold; }}
             </style>
         </head>
         <body>
@@ -90,19 +139,25 @@ class ValidationInterface:
             <p><strong>Source URL:</strong> <a href="{url}" target="_blank">{url}</a></p>
             
             <div class="note">
-                <p><strong>Note:</strong> Please review the extracted information in the left panel and compare with the original HTML in the right panel. 
-                Then return to the command line to confirm if the information is correct.</p>
+                <p><strong>Note:</strong> Review the LLM's input and output (left panel) and compare with the original HTML (right panel). 
+                Highlighted text in the right panel corresponds to data extracted by the LLM.
+                Then return to the command line to confirm.</p>
             </div>
             
             <div class="container">
                 <div class="left-panel">
-                    <h2>Extracted Office Information</h2>
+                    <h2>LLM Input (Contact Sections)</h2>
+                    <div class="llm-input-display">
+                        <iframe class="llm-input-iframe" srcdoc='{contact_sections_escaped_for_iframe}' title="LLM Input HTML Snippets"></iframe>
+                    </div>
+
+                    <h2>Extracted Office Information (LLM Output)</h2>
                     {offices_html}
                 </div>
                 
                 <div class="right-panel">
-                    <h2>Original Page Content</h2>
-                    <iframe srcdoc='{html_content.replace("'", "&apos;")}' title="Original HTML"></iframe>
+                    <h2>Original Page Content (with LLM extractions highlighted)</h2>
+                    <iframe class="original-html-iframe" srcdoc='{highlighted_html_for_iframe}' title="Original HTML with Highlights"></iframe>
                 </div>
             </div>
         </body>
@@ -133,11 +188,12 @@ class ValidationInterface:
             log.error(f"Failed to open validation interface: {e}")
     
     def validate_office_data(
-        self, 
-        bioguide_id: str, 
-        offices: List[Dict[str, Any]], 
+        self,
+        bioguide_id: str,
+        offices: List[Dict[str, Any]],
         html_content: str,
-        url: str
+        url: str,
+        contact_sections: str
     ) -> Tuple[bool, Optional[List[Dict[str, Any]]]]:
         """Validate the extracted office data through human review.
         
@@ -146,12 +202,15 @@ class ValidationInterface:
             offices: The extracted office information
             html_content: The HTML content from the representative's page
             url: The URL that was scraped
+            contact_sections: The HTML sections fed to the LLM
             
         Returns:
             Tuple of (is_validated, validated_offices)
         """
         # Generate the validation HTML
-        validation_html_path = self.generate_validation_html(bioguide_id, html_content, offices, url)
+        validation_html_path = self.generate_validation_html(
+            bioguide_id, html_content, offices, url, contact_sections
+        )
         
         # Open the validation interface in browser
         self.open_validation_interface(validation_html_path)
