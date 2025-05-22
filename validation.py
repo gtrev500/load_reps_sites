@@ -12,7 +12,7 @@ import tempfile
 import html
 from bs4 import BeautifulSoup, Comment, Doctype, CData, NavigableString, Tag
 
-# --- Field Color Mapping ---
+# --- Field Styling Configuration ---
 FIELD_COLOR_MAP = {
     "address": "#90EE90",       # lightgreen
     "zip": "#F08080",           # lightcoral
@@ -25,6 +25,22 @@ FIELD_COLOR_MAP = {
     "fax": "#B0E0E6",           # powderblue
     "hours": "#FAFAD2",         # lightgoldenrodyellow
     "default_highlight": "yellow" # Fallback for general highlights
+}
+
+FIELD_HIGHLIGHT_PRIORITY = {
+    # Higher priority (processed first for ambiguous strings of same length)
+    "zip": 0,
+    "phone": 1,
+    "fax": 2,
+    "state": 3,
+    "suite": 4,
+    "address": 5, 
+    "city": 6,
+    # Lower priority
+    "hours": 7,
+    "building": 8,
+    "office_type": 9,
+    "default_priority": 99 # Fallback for unlisted fields
 }
 
 # --- Logging Setup ---
@@ -77,9 +93,16 @@ class ValidationInterface:
                 if isinstance(value, str) and value.strip():
                     field_values_to_highlight.append((value, field_name.lower()))
         
-        # Sort by length of value (descending) to handle substrings correctly
-        # (e.g., "Main St" within "123 Main St")
-        sorted_field_values = sorted(field_values_to_highlight, key=lambda item: len(item[0]), reverse=True)
+        # Sort by length of value (descending) primarily.
+        # For items of the same length, sort by field_name priority (ascending).
+        # item[0] is the text value, item[1] is the field_name (already lowercased).
+        sorted_field_values = sorted(
+            field_values_to_highlight,
+            key=lambda item: (
+                -len(item[0]),  # Primary sort: length descending (hence negative)
+                FIELD_HIGHLIGHT_PRIORITY.get(item[1], FIELD_HIGHLIGHT_PRIORITY["default_priority"])  # Secondary sort: priority ascending
+            )
+        )
 
         for text_val, field_name in sorted_field_values: # Iterate with field_name
             # Find all text nodes in the current state of the soup.
