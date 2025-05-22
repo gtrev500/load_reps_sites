@@ -26,7 +26,8 @@ def process_single_bioguide(
     tracker: ProvenanceTracker,
     api_key: Optional[str] = None,
     skip_validation: bool = False,
-    skip_storage: bool = False
+    skip_storage: bool = False,
+    force: bool = False
 ) -> bool:
     """Process a single bioguide ID.
     
@@ -37,6 +38,7 @@ def process_single_bioguide(
         api_key: Optional Anthropic API key
         skip_validation: Whether to skip human validation
         skip_storage: Whether to skip database storage
+        force: Whether to force processing even if data already exists
         
     Returns:
         True if the processing was successful, False otherwise
@@ -45,11 +47,14 @@ def process_single_bioguide(
     log_path = tracker.log_process_start(bioguide_id)
     
     try:
-        # Step 1: Check if district office information already exists
-        if database.check_district_office_exists(bioguide_id, database_uri):
+        # Step 1: Check if district office information already exists (unless forced)
+        if not force and database.check_district_office_exists(bioguide_id, database_uri):
             log.info(f"District office information already exists for {bioguide_id}")
             tracker.log_process_end(log_path, "skipped", "District office information already exists")
             return True
+        elif force and database.check_district_office_exists(bioguide_id, database_uri):
+            log.info(f"Force mode: processing {bioguide_id} even though data exists (will not overwrite database)")
+            skip_storage = True  # Override storage to prevent overwriting existing data
         
         # Step 2: Get the contact page URL
         contact_url = database.get_contact_page_url(bioguide_id, database_uri)
@@ -181,6 +186,11 @@ def main():
         help="Anthropic API key (if not provided, uses ANTHROPIC_API_KEY environment variable)"
     )
     parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force processing even if district office data already exists (does not overwrite database)"
+    )
+    parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
@@ -215,7 +225,8 @@ def main():
             tracker,
             api_key,
             args.skip_validation,
-            args.skip_storage
+            args.skip_storage,
+            args.force
         )
         
         if success:
@@ -245,7 +256,8 @@ def main():
                 tracker,
                 api_key,
                 args.skip_validation,
-                args.skip_storage
+                args.skip_storage,
+                args.force
             )
             
             if success:

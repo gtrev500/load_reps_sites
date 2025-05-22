@@ -112,6 +112,7 @@ def get_bioguides_without_district_offices(database_uri: str) -> List[str]:
         if conn:
             conn.close()
 
+
 def store_district_office(office_data: Dict[str, Any], database_uri: str) -> bool:
     """Store district office information in the database.
     
