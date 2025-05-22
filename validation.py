@@ -133,7 +133,29 @@ class ValidationInterface:
                 .original-html-iframe {{ width: 100%; height: 600px; border: 1px solid #ddd; }}
                 .llm-input-iframe {{ width: 100%; height: 300px; border: 1px solid #ccc; margin-bottom:20px;}}
                 .note {{ background-color: #f8f9fa; padding: 10px; border-left: 4px solid #007bff; margin-bottom: 20px; }}
-                .highlighted-llm-output {{ background-color: yellow; color: black; font-weight: bold; }}
+                .highlighted-llm-output {{ 
+                    /* This class is used for both <mark> in iframe and <span> in the table */
+                    color: black; /* Text color for highlighted items */
+                    font-weight: bold; 
+                    padding: 0.1em 0.2em; 
+                    border-radius: 0.2em; 
+                }}
+                /* Field-specific background colors. Applied to <mark> and <span> */
+                .field-address {{ background-color: #90EE90; }} /* lightgreen */
+                .field-zip {{ background-color: #F08080; }} /* lightcoral */
+                .field-phone {{ background-color: #ADD8E6; }} /* lightblue */
+                .field-city {{ background-color: #FFD700; }} /* gold */
+                .field-state {{ background-color: #DA70D6; }} /* orchid */
+                .field-office_type {{ background-color: #E6E6FA; }} /* lavender */
+                .field-building {{ background-color: #D2B48C; }} /* tan */
+                .field-suite {{ background-color: #FFB6C1; }} /* lightpink */
+                .field-fax {{ background-color: #B0E0E6; }} /* powderblue */
+                .field-hours {{ background-color: #FAFAD2; }} /* lightgoldenrodyellow */
+                /* Default highlight for any other fields not specified or for general marks if needed */
+                mark.highlighted-llm-output:not([class*="field-"]), 
+                span.highlighted-llm-output:not([class*="field-"]) {{ 
+                    background-color: yellow; 
+                }}
             </style>
         </head>
         <body>
