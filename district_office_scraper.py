@@ -87,7 +87,7 @@ def process_single_bioguide(
         tracker.save_artifact(log_path, "contact_sections", contact_sections, "html")
         
         # Step 6: Use LLM to extract district office information
-        llm_processor = LLMProcessor(api_key)
+        llm_processor = LLMProcessor(model_name="claude-3-haiku-20240307", api_key=api_key)
         extracted_offices = llm_processor.extract_district_offices(contact_sections, bioguide_id)
         
         # Save the extracted offices as an artifact

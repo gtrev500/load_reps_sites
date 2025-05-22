@@ -7,8 +7,8 @@ import json
 import time
 from typing import Dict, List, Optional, Any
 
-# Import the Anthropic SDK
-import anthropic
+# Import LiteLLM for multi-provider LLM support
+import litellm
 
 # --- Logging Setup ---
 logging.basicConfig(
@@ -17,29 +17,60 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 class LLMProcessor:
-    """Class for processing HTML content using Anthropic's Claude LLM."""
+    """Class for processing HTML content using LiteLLM for multi-provider LLM support."""
     
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, model_name: str = "claude-3-haiku-20240307", api_key: Optional[str] = None):
         """Initialize the LLM processor.
         
         Args:
-            api_key: Anthropic API key (optional, can use env var)
+            model_name: LiteLLM compatible model string (e.g., "claude-3-haiku-20240307", "gpt-4-turbo")
+            api_key: Optional API key. LiteLLM typically uses environment variables.
         """
-        self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
-        if not self.api_key:
-            log.warning("No Anthropic API key provided. Will simulate responses for development.")
-        
-        # Initialize Anthropic client if API key is available
-        if self.api_key:
-            self.client = anthropic.Anthropic(api_key=self.api_key)
-            log.info("Initialized Anthropic client with provided API key")
+        # Store the LiteLLM model string
+        self.model = model_name
         
         # Create directory for storing LLM responses
         self.results_dir = os.path.join(os.path.dirname(__file__), "cache", "llm_results")
         os.makedirs(self.results_dir, exist_ok=True)
         
-        # Set the model to use
-        self.model = "claude-3-7-sonnet-20250219"
+        log.info(f"Initialized LLMProcessor with model: {self.model}")
+        
+        # Check for relevant API keys (LiteLLM handles these via environment variables)
+        relevant_api_keys = [
+            "ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GOOGLE_API_KEY", 
+            "COHERE_API_KEY", "REPLICATE_API_TOKEN"
+        ]
+        api_key_present = any(os.environ.get(key) for key in relevant_api_keys)
+        
+        if not api_key_present:
+            log.warning("No relevant LLM API key found in environment variables. Will simulate responses for development.")
+    
+    def _clean_html_content(self, html_content: str) -> str:
+        """Clean HTML content by removing script, style, and other non-content elements.
+        
+        Args:
+            html_content: Raw HTML content to clean
+            
+        Returns:
+            Cleaned HTML content as string
+        """
+        from bs4 import BeautifulSoup
+        
+        try:
+            soup = BeautifulSoup(html_content, 'html.parser')
+            
+            # Remove script, style, meta, and SVG tags to clean up the HTML
+            for tag in soup(['script', 'style', 'meta', 'link', 'head', 'svg', 'path', 'clippath', 'g']):
+                tag.decompose()
+            
+            # Get the cleaned HTML content
+            cleaned_html = str(soup)
+            log.info("Successfully cleaned HTML content by removing script/style tags")
+            return cleaned_html
+            
+        except Exception as e:
+            log.warning(f"Error cleaning HTML: {e}, using original content")
+            return html_content
         
     def generate_system_prompt(self) -> str:
         """Generate the system prompt for the LLM.
@@ -48,9 +79,9 @@ class LLMProcessor:
             System prompt string
         """
         return """
-        You are a specialized assistant tasked with extracting congressional district office information from websites.
+        You are a specialized assistant tasked with extracting congressional district office information from HTML webpage content.
         
-        Your job is to carefully find all district offices (NOT Washington DC offices) and extract the exact contact information.
+        You will be provided with structured HTML content from a representative's contact page. Your job is to carefully parse this HTML and find all district offices (NOT Washington DC offices) and extract the exact contact information.
         
         For EACH district office, extract:
         1. Office name (often a city name like "San Francisco Office" or "District Office")
@@ -65,14 +96,17 @@ class LLMProcessor:
         10. Hours (if available)
         
         IMPORTANT INSTRUCTIONS:
+        - You will receive HTML content, not plain text
+        - Look for HTML elements that contain office information: <div>, <section>, <address>, <p>, <span>, etc.
+        - Pay attention to HTML structure - office information is often grouped in containers
+        - Look for headings like <h1>, <h2>, <h3> that indicate "Office Locations", "Contact", "District Offices"
+        - Office information may be in lists (<ul>, <ol>, <li>) or tables (<table>, <tr>, <td>)
         - DO NOT include the Washington DC office - focus only on district/local offices
         - Extract ALL offices found, not just the first one
-        - Maintain exact formatting of addresses, phone numbers, etc. as shown on the page
-        - Omit any field if information is missing (don't guess)
-        - Focus on sections with "Office Locations", "Contact", or similar headings
+        - Maintain exact formatting of addresses, phone numbers, etc. as shown in the HTML text content
+        - Omit any field if information is missing (don't guess or make up information)
         - Return a JSON array with each object representing one office
         - Use these exact field names: "office_type", "building", "address", "suite", "city", "state", "zip", "phone", "fax", "hours"
-        - Look for district office sections near the bottom of the page or in sidebars
         
         Example response:
         ```json
@@ -105,21 +139,28 @@ class LLMProcessor:
         """
 
     def extract_district_offices(self, html_content: str, bioguide_id: str) -> List[Dict[str, Any]]:
-        """Extract district office information from HTML content using the LLM.
+        """Extract district office information from HTML content using the LLM via LiteLLM.
         
         Args:
-            html_content: HTML content from the representative's contact page
-            bioguide_id: Bioguide ID for reference
+            html_content: Structured HTML content from the representative's contact page.
+            bioguide_id: Bioguide ID for reference.
             
         Returns:
-            List of dictionaries containing extracted district office information
+            List of dictionaries containing extracted district office information.
         """
         # Generate unique ID for this extraction
         extraction_id = f"{bioguide_id}_{int(time.time())}"
         
-        if not self.api_key:
+        # Check for API keys based on environment variables
+        relevant_api_keys = [
+            "ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GOOGLE_API_KEY", 
+            "COHERE_API_KEY", "REPLICATE_API_TOKEN"
+        ]
+        api_key_present = any(os.environ.get(key) for key in relevant_api_keys)
+        
+        if not api_key_present:
             # Simulate a response for development without API key
-            log.warning("Using simulated LLM response (no API key provided)")
+            log.warning("Using simulated LLM response (no relevant API key found)")
             simulated_response = self._simulate_response(html_content, bioguide_id)
             
             # Save simulated response for reference
@@ -129,89 +170,48 @@ class LLMProcessor:
             
             return simulated_response
         
-        # Call the Anthropic API
+        system_prompt = self.generate_system_prompt()
+        
+        # Clean the HTML content
+        cleaned_html = self._clean_html_content(html_content)
+        
+        # Ensure cleaned HTML is not excessively long. Truncation might still be needed,
+        # but be mindful that truncating HTML can break its structure.
+        max_html_length = 150000  # Adjust as needed, token limits are the real concern
+        if len(cleaned_html) > max_html_length:
+            log.warning(f"HTML content too long ({len(cleaned_html)} chars), truncating to {max_html_length} chars. This might break HTML structure.")
+            user_content = cleaned_html[:max_html_length]
+        else:
+            user_content = cleaned_html
+        
+        llm_messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_content}  # Send structured HTML
+        ]
+        
         try:
-            log.info(f"Calling Anthropic API to extract district offices for {bioguide_id}")
+            log.info(f"Calling LLM ({self.model}) via LiteLLM to extract district offices for {bioguide_id}")
             
-            system_prompt = self.generate_system_prompt()
-            
-            # Process the HTML to focus on relevant content
-            from bs4 import BeautifulSoup
-            try:
-                soup = BeautifulSoup(html_content, 'html.parser')
-                
-                # Remove script, style, meta, and SVG tags to clean up the HTML
-                for tag in soup(['script', 'style', 'meta', 'link', 'head', 'svg', 'path', 'clippath', 'g']):
-                    tag.decompose()
-                
-                # Find specific sections likely to contain office information
-                contact_sections = []
-                
-                # Look for sections with office locations, contact info
-                for heading in soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']):
-                    text = heading.get_text().lower()
-                    if any(term in text for term in ['office', 'location', 'contact']):
-                        section = heading
-                        # Get the parent if it's a container
-                        if heading.parent and heading.parent.name in ['div', 'section']:
-                            section = heading.parent
-                        contact_sections.append(str(section))
-                
-                # Also look for divs with specific classes or IDs
-                for div in soup.find_all('div'):
-                    div_id = div.get('id', '').lower()
-                    div_class = ' '.join(div.get('class', [])).lower()
-                    
-                    if any(term in div_id for term in ['office', 'location', 'contact']) or \
-                       any(term in div_class for term in ['office', 'location', 'contact']):
-                        contact_sections.append(str(div))
-                
-                # If we found specific sections, use those instead of the full HTML
-                if contact_sections:
-                    html_content = "\n".join(contact_sections)
-                    log.info(f"Extracted {len(contact_sections)} relevant contact sections")
-                
-                # Further clean by converting to plain text with structure
-                soup = BeautifulSoup(html_content, 'html.parser')
-                text_content = soup.get_text(separator='\n', strip=True)
-                
-                # Ensure we're within context limits
-                max_text_length = 60000
-                if len(text_content) > max_text_length:
-                    log.warning(f"Content too long ({len(text_content)} chars), truncating to {max_text_length} chars")
-                    text_content = text_content[:max_text_length]
-                
-                # Construct a simple prompt with the extracted content
-                user_content = f"""
-Please extract the district office information from the following website content:
-
-{text_content}
-
-Remember to find all district offices (not Washington DC offices) and provide the requested details in JSON format.
-"""
-                
-            except Exception as e:
-                log.error(f"Error processing HTML: {e}")
-                # Fall back to truncated raw HTML
-                max_html_length = 60000
-                if len(html_content) > max_html_length:
-                    log.warning(f"HTML content too long ({len(html_content)} chars), truncating to {max_html_length} chars")
-                    html_content = html_content[:max_html_length]
-                user_content = html_content
-            
-            # Make the API call to Claude
-            response = self.client.messages.create(
+            # Make the API call using LiteLLM
+            response = litellm.completion(
                 model=self.model,
-                max_tokens=4000,
-                system=system_prompt,
-                messages=[
-                    {"role": "user", "content": user_content}
-                ]
+                messages=llm_messages,
+                max_tokens=4000  # Adjust as needed
             )
             
-            # Extract the JSON from Claude's response
+            # Cost Tracking
             try:
-                response_text = response.content[0].text
+                cost = litellm.completion_cost(completion_response=response)
+                log.info(f"LLM call cost for {extraction_id}: ${cost:.6f}")
+                # Store this cost for tracking purposes
+            except Exception as cost_e:
+                log.warning(f"Could not calculate cost for {extraction_id}: {cost_e}")
+            
+            # Extract the JSON from the LLM's response
+            response_text = response.choices[0].message.content
+            
+            # Parse the JSON response
+            try:
                 
                 # More robust JSON extraction
                 # Try different patterns to extract JSON
@@ -272,18 +272,31 @@ Remember to find all district offices (not Washington DC offices) and provide th
             # Save the full response for reference
             response_path = os.path.join(self.results_dir, f"{extraction_id}_response.txt")
             with open(response_path, 'w', encoding='utf-8') as f:
-                f.write(response_text)
+                f.write(f"Model: {self.model}\n\n{response_text}")
             
             # Save extracted offices for reference
             result_path = os.path.join(self.results_dir, f"{extraction_id}.json")
             with open(result_path, 'w', encoding='utf-8') as f:
                 json.dump(result_json, f, indent=2)
             
-            log.info(f"Successfully extracted {len(result_json)} district offices for {bioguide_id}")
+            log.info(f"Successfully extracted {len(result_json)} district offices for {bioguide_id} using {self.model}")
             return result_json
             
-        except Exception as e:
-            log.error(f"Failed to extract district offices with LLM: {e}")
+        except litellm.exceptions.APIConnectionError as e:
+            log.error(f"LiteLLM API Connection Error: {e}")
+            return []
+        except litellm.exceptions.RateLimitError as e:
+            log.error(f"LiteLLM Rate Limit Error: {e}")
+            # Implement retry logic or backoff if needed
+            return []
+        except litellm.exceptions.APIError as e:  # Catch other LiteLLM API errors
+            log.error(f"LiteLLM API Error: {e}")
+            return []
+        except Exception as e:  # Catch-all for other unexpected errors
+            log.error(f"Failed to extract district offices with LLM ({self.model}): {e}")
+            # Log the full traceback for unexpected errors
+            import traceback
+            log.error(traceback.format_exc())
             return []
     
     def _simulate_response(self, html_content: str, bioguide_id: str) -> List[Dict[str, Any]]:

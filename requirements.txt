@@ -7,3 +7,4 @@ tqdm==4.67.1
 urllib3==2.4.0
 beautifulsoup4==4.12.3
 anthropic==0.50.0
+litellm
