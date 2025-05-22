@@ -81,7 +81,7 @@ class LLMProcessor:
         return """
         You are a specialized assistant tasked with extracting congressional district office information from HTML webpage content.
         
-        You will be provided with structured HTML content from a representative's contact page. Your job is to carefully parse this HTML and find all district offices (NOT Washington DC offices) and extract the exact contact information.
+        You will be provided with structured HTML content from a representative's contact page. Your job is to carefully parse this HTML and find all district offices and extract the exact contact information.
         
         For EACH district office, extract:
         1. Office name (often a city name like "San Francisco Office" or "District Office")
@@ -101,7 +101,6 @@ class LLMProcessor:
         - Pay attention to HTML structure - office information is often grouped in containers
         - Look for headings like <h1>, <h2>, <h3> that indicate "Office Locations", "Contact", "District Offices"
         - Office information may be in lists (<ul>, <ol>, <li>) or tables (<table>, <tr>, <td>)
-        - DO NOT include the Washington DC office - focus only on district/local offices
         - Extract ALL offices found, not just the first one
         - Maintain exact formatting of addresses, phone numbers, etc. as shown in the HTML text content
         - Omit any field if information is missing (don't guess or make up information)
