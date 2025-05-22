@@ -146,17 +146,17 @@ class ValidationInterface:
                     padding: 0.1em 0.2em; 
                     border-radius: 0.2em; 
                 }}
-                /* Field-specific background colors. Applied to <mark> and <span> */
-                .field-address {{ background-color: #90EE90; }} /* lightgreen */
-                .field-zip {{ background-color: #F08080; }} /* lightcoral */
-                .field-phone {{ background-color: #ADD8E6; }} /* lightblue */
-                .field-city {{ background-color: #FFD700; }} /* gold */
-                .field-state {{ background-color: #DA70D6; }} /* orchid */
-                .field-office_type {{ background-color: #E6E6FA; }} /* lavender */
-                .field-building {{ background-color: #D2B48C; }} /* tan */
-                .field-suite {{ background-color: #FFB6C1; }} /* lightpink */
-                .field-fax {{ background-color: #B0E0E6; }} /* powderblue */
-                .field-hours {{ background-color: #FAFAD2; }} /* lightgoldenrodyellow */
+                /* Field-specific background colors. Applied to <mark> in iframe and <span> in table */
+                mark.highlighted-llm-output.field-address, span.highlighted-llm-output.field-address {{ background-color: #90EE90; }} /* lightgreen */
+                mark.highlighted-llm-output.field-zip, span.highlighted-llm-output.field-zip {{ background-color: #F08080; }} /* lightcoral */
+                mark.highlighted-llm-output.field-phone, span.highlighted-llm-output.field-phone {{ background-color: #ADD8E6; }} /* lightblue */
+                mark.highlighted-llm-output.field-city, span.highlighted-llm-output.field-city {{ background-color: #FFD700; }} /* gold */
+                mark.highlighted-llm-output.field-state, span.highlighted-llm-output.field-state {{ background-color: #DA70D6; }} /* orchid */
+                mark.highlighted-llm-output.field-office_type, span.highlighted-llm-output.field-office_type {{ background-color: #E6E6FA; }} /* lavender */
+                mark.highlighted-llm-output.field-building, span.highlighted-llm-output.field-building {{ background-color: #D2B48C; }} /* tan */
+                mark.highlighted-llm-output.field-suite, span.highlighted-llm-output.field-suite {{ background-color: #FFB6C1; }} /* lightpink */
+                mark.highlighted-llm-output.field-fax, span.highlighted-llm-output.field-fax {{ background-color: #B0E0E6; }} /* powderblue */
+                mark.highlighted-llm-output.field-hours, span.highlighted-llm-output.field-hours {{ background-color: #FAFAD2; }} /* lightgoldenrodyellow */
                 /* Default highlight for any other fields not specified or for general marks if needed */
                 mark.highlighted-llm-output:not([class*="field-"]), 
                 span.highlighted-llm-output:not([class*="field-"]) {{ 
