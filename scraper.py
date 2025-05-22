@@ -118,7 +118,7 @@ def clean_html(html_content: str) -> str:
         soup = BeautifulSoup(html_content, 'html.parser')
         
         # Remove script and style elements
-        for script in soup(["script", "style"]):
+        for script in soup(["script", "style", "path"]):
             script.decompose()
             
         # Get cleaned text
