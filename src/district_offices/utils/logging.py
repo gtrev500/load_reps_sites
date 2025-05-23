@@ -21,9 +21,9 @@ class ProvenanceTracker:
     def __init__(self):
         """Initialize the provenance tracker."""
         # Create directories for provenance logs and artifacts
-        self.logs_dir = os.path.join(os.path.dirname(__file__), "logs", "provenance")
-        self.runs_dir = os.path.join(os.path.dirname(__file__), "logs", "runs")
-        self.artifacts_dir = os.path.join(os.path.dirname(__file__), "logs", "artifacts")
+        self.logs_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "logs", "provenance")
+        self.runs_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "logs", "runs")
+        self.artifacts_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "logs", "artifacts")
         
         os.makedirs(self.logs_dir, exist_ok=True)
         os.makedirs(self.runs_dir, exist_ok=True)

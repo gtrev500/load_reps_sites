@@ -20,8 +20,8 @@ log = logging.getLogger(__name__)
 # --- Constants ---
 REQUEST_TIMEOUT = 30
 USER_AGENT = "Mozilla/5.0 (compatible; DistrictOfficeScraper/1.0)"
-HTML_CACHE_DIR = os.path.join(os.path.dirname(__file__), "cache", "html")
-IMAGE_DIR = os.path.join(os.path.dirname(__file__), "cache", "screenshots")
+HTML_CACHE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..", "cache", "html")
+IMAGE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..", "cache", "screenshots")
 
 # Ensure cache directories exist
 os.makedirs(HTML_CACHE_DIR, exist_ok=True)

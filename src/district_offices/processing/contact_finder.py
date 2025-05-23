@@ -10,6 +10,10 @@ import psycopg2  # Database connector
 import requests
 from tqdm import tqdm
 
+# Add parent directory to path for imports when run as script
+if __name__ == "__main__":
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+
 # --- Configuration ---
 
 # Default number of concurrent workers

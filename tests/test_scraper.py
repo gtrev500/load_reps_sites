@@ -9,9 +9,12 @@ or making database changes.
 import os
 import sys
 import logging
-from scraper import extract_html, clean_html, extract_contact_sections
-from llm_processor import LLMProcessor
-from validation import ValidationInterface
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from district_offices.core.scraper import extract_html, clean_html, extract_contact_sections
+from district_offices.processing.llm_processor import LLMProcessor
+from district_offices.validation.interface import ValidationInterface
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")

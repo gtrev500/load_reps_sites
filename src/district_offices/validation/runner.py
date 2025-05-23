@@ -8,11 +8,15 @@ import time
 import webbrowser
 from typing import List, Dict, Optional, Any
 
+# Add parent directory to path for imports when run as script
+if __name__ == "__main__":
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+
 # Import our modules
-import database
-from validation import ValidationInterface
-from staging_manager import StagingManager, ExtractionStatus
-from logging_utils import ProvenanceTracker
+from district_offices.storage import database
+from district_offices.validation.interface import ValidationInterface
+from district_offices.storage.staging import StagingManager, ExtractionStatus
+from district_offices.utils.logging import ProvenanceTracker
 
 # --- Logging Setup ---
 logging.basicConfig(

@@ -1,0 +1,12 @@
+beautifulsoup4>=4.9.0
+requests>=2.25.0
+psycopg2-binary>=2.9.0
+litellm>=1.0.0
+playwright>=1.40.0
+tqdm>=4.60.0
+asyncpg>=0.29.0
+
+[dev]
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.0.0

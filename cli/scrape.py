@@ -7,13 +7,16 @@ import sys
 import time
 from typing import List, Dict, Optional, Any
 
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 # Import our modules
-import database
-from scraper import extract_html, clean_html, extract_contact_sections, capture_screenshot
-from llm_processor import LLMProcessor
-from validation import ValidationInterface
-from logging_utils import ProvenanceTracker
-from staging_manager import StagingManager
+from district_offices.storage import database
+from district_offices.core.scraper import extract_html, clean_html, extract_contact_sections, capture_screenshot
+from district_offices.processing.llm_processor import LLMProcessor
+from district_offices.validation.interface import ValidationInterface
+from district_offices.utils.logging import ProvenanceTracker
+from district_offices.storage.staging import StagingManager
 
 # --- Logging Setup ---
 logging.basicConfig(

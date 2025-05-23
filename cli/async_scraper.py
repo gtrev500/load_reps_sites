@@ -10,11 +10,14 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Dict, Optional, Any
 from dataclasses import dataclass
 
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 # Import our modules
-import database
-from district_office_scraper import process_single_bioguide
-from staging_manager import StagingManager
-from logging_utils import ProvenanceTracker
+from district_offices.storage import database
+from cli.scrape import process_single_bioguide
+from district_offices.storage.staging import StagingManager
+from district_offices.utils.logging import ProvenanceTracker
 
 # --- Logging Setup ---
 logging.basicConfig(
