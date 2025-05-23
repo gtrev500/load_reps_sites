@@ -8,3 +8,7 @@ urllib3==2.4.0
 beautifulsoup4==4.12.3
 anthropic==0.50.0
 litellm
+asyncpg>=0.29.0
+aiohttp>=3.9.0
+aiofiles>=23.2.0
+playwright>=1.40.0

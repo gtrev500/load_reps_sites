@@ -59,13 +59,17 @@ def validate_from_staging(
         contact_sections = ""
         
         # Load HTML content
+        html_path = None
         if "html_content" in extraction_data.artifacts:
             html_path = extraction_data.artifacts["html_content"]
-            if os.path.exists(html_path):
-                with open(html_path, 'r', encoding='utf-8') as f:
-                    html_content = f.read()
-            else:
-                log.warning(f"HTML content file not found: {html_path}")
+        elif "html" in extraction_data.artifacts:
+            html_path = extraction_data.artifacts["html"]
+        
+        if html_path and os.path.exists(html_path):
+            with open(html_path, 'r', encoding='utf-8') as f:
+                html_content = f.read()
+        else:
+            log.warning(f"HTML content file not found: {html_path}")
         
         # Load contact sections
         if "contact_sections" in extraction_data.artifacts:
@@ -251,11 +255,15 @@ def open_multiple_validation_windows(
             contact_sections = ""
             
             # Load HTML content
+            html_path = None
             if "html_content" in extraction_data.artifacts:
                 html_path = extraction_data.artifacts["html_content"]
-                if os.path.exists(html_path):
-                    with open(html_path, 'r', encoding='utf-8') as f:
-                        html_content = f.read()
+            elif "html" in extraction_data.artifacts:
+                html_path = extraction_data.artifacts["html"]
+            
+            if html_path and os.path.exists(html_path):
+                with open(html_path, 'r', encoding='utf-8') as f:
+                    html_content = f.read()
             
             # Load contact sections
             if "contact_sections" in extraction_data.artifacts:

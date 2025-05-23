@@ -47,7 +47,9 @@ class StagingManager:
         if staging_dir:
             self.staging_root = staging_dir
         else:
-            self.staging_root = os.path.join(os.path.dirname(__file__), "data", "staging")
+            # Get project root directory (load_reps_sites)
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+            self.staging_root = os.path.join(project_root, "data", "staging")
         
         # Create staging subdirectories
         self.pending_dir = os.path.join(self.staging_root, "pending")

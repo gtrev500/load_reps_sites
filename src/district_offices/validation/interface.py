@@ -401,7 +401,7 @@ class ValidationInterface:
         """
         # Start validation server if using browser validation
         if self.browser_validation:
-            from validation_server import ValidationServer
+            from district_offices.validation.server import ValidationServer
             self.validation_server = ValidationServer()
             self.validation_server.start()
             
