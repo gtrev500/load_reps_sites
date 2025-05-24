@@ -9,12 +9,16 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import our modules
-from district_offices.storage import database
+from district_offices import (
+    get_bioguides_without_district_offices,
+    get_contact_page_url, 
+    check_district_office_exists,
+    store_district_office
+)
 from district_offices.core.scraper import extract_html
 from district_offices.processing.llm_processor import LLMProcessor
 from district_offices.utils.logging import ProvenanceTracker
 from district_offices.storage.sqlite_db import SQLiteDatabase
-from district_offices.storage.postgres_sync import PostgreSQLSyncManager
 from district_offices.config import Config
 
 # --- Logging Setup ---
@@ -56,13 +60,13 @@ def process_single_bioguide(
     
     try:
         # Step 1: Check if district office information already exists (unless forced)
-        if not force and database.check_district_office_exists(bioguide_id, database_uri):
+        if not force and check_district_office_exists(bioguide_id, database_uri):
             log.info(f"District office information already exists for {bioguide_id}")
             tracker.log_process_end(log_path, "skipped", "District office information already exists")
             return True
         
         # Step 2: Get the contact page URL
-        contact_url = database.get_contact_page_url(bioguide_id, database_uri)
+        contact_url = get_contact_page_url(bioguide_id, database_uri)
         if not contact_url:
             log.error(f"No contact page URL found for {bioguide_id}")
             tracker.log_process_end(log_path, "failed", "No contact page URL found")
@@ -108,7 +112,7 @@ def process_single_bioguide(
             office_data["bioguide_id"] = bioguide_id
             
             # Store in the database (this will create validated office and sync to PostgreSQL)
-            store_success = database.store_district_office(office_data, database_uri)
+            store_success = store_district_office(office_data, database_uri)
             success = success or store_success
         
         if success:
@@ -205,7 +209,7 @@ def main():
     elif args.all:
         # Process all bioguide IDs without district office information
         log.info("Processing all bioguide IDs without district office information")
-        bioguide_ids = database.get_bioguides_without_district_offices(database_uri)
+        bioguide_ids = get_bioguides_without_district_offices(database_uri)
         
         if not bioguide_ids:
             log.info("No bioguide IDs found without district office information")

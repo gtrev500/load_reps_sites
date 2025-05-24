@@ -56,8 +56,7 @@ class ProvenanceTracker:
             String identifier for this process (format: "extraction:{id}")
         """
         # Create extraction record in database
-        extraction = self.db.create_extraction(bioguide_id, source_url=None)
-        extraction_id = extraction.id
+        extraction_id = self.db.create_extraction(bioguide_id, source_url=None)
         
         # Store mapping
         self.current_processes[bioguide_id] = extraction_id
@@ -296,8 +295,8 @@ class ProvenanceTracker:
                 
                 # Find all extractions from this run
                 run_extractions = session.query(Extraction).join(ProvenanceLog).filter(
-                    ProvenanceLog.event_type == "process_start",
-                    ProvenanceLog.event_data.contains(f'"run_id": "{self.run_id}"')
+                    ProvenanceLog.step_name == "process_start",
+                    ProvenanceLog.step_data.contains(f'"run_id": "{self.run_id}"')
                 ).all()
                 
                 # Count by status

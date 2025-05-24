@@ -4,184 +4,222 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This component extracts district office information from congressional representatives' websites using web scraping, LLM-based data extraction, and human validation. The codebase has been modularized and refactored to use an async-first architecture for better performance and scalability.
+This component extracts district office information from congressional representatives' websites using web scraping, LLM-based data extraction, and human validation. The system uses a SQLite-based architecture for all intermediate processing, with PostgreSQL only for initial data import and final validated data export.
 
 ## Key Commands
 
-### Primary CLI (Async-First)
+### Installation and Setup
 ```bash
-# Install package in development mode
+# Install package in development mode  
 uv pip install -e .
 
+# Install dependencies
+uv pip install -r requirements.txt
+
+# Test migration and setup
+python test_sqlite_migration.py
+python test_scrape_workflow.py
+```
+
+### Primary CLI Commands
+```bash
 # Process single representative
-district-offices --bioguide-id A000374
+python cli/scrape.py --bioguide-id A000374
 
-# Process all missing offices concurrently
-district-offices --all --max-concurrent 10
+# Process all missing offices
+python cli/scrape.py --all
 
-# Save to staging for later validation
-district-offices --all --async-mode
-
-# Use browser validation
-district-offices --bioguide-id A000374 --browser-validation
-
-# Custom database URI and API key
-district-offices --all --db-uri="postgresql://..." --api-key="sk-..."
+# Use custom database URI and API key
+python cli/scrape.py --all --db-uri="postgresql://..." --api-key="sk-..."
 ```
 
 ### Validation Workflow
 ```bash
-# Validate staged extractions
-district-offices-validate --all-pending --auto-store --browser-validation
+# Validate pending extractions
+python -m district_offices.validation.runner --all-pending --auto-store
 
-# Validate specific bioguide
-district-offices-validate --bioguide-id A000374 --auto-store
+# Validate specific bioguide with browser interface
+python -m district_offices.validation.runner --bioguide-id A000374 --browser-validation
 
-# Open multiple validation windows
-district-offices-validate --open-multiple --max-windows 5
+# Open multiple validation windows for batch review
+python -m district_offices.validation.runner --open-multiple --max-windows 5
 ```
 
-### Development Commands
+### Development and Testing
 ```bash
 # Run tests
 pytest
-pytest tests/test_async_extraction.py  # Async tests only
-pytest --cov=district_offices          # With coverage
+pytest tests/test_scraper.py -v  # Specific test file
+pytest --cov=district_offices    # With coverage
 
-# Check contact pages
-district-offices-find-contacts --store-db
-
-# Install dependencies
-uv pip install -r requirements.txt
+# Find and store contact pages
+python -m district_offices.processing.contact_finder --store-db
 ```
 
 ## Architecture
 
-### Module Structure
+### SQLite-First Design
+
+The system uses SQLite as the primary storage for all processing workflows:
+
+1. **Data Import**: PostgreSQL → SQLite (members, contacts)
+2. **Processing**: All extraction, validation, artifacts stored in SQLite  
+3. **Data Export**: SQLite → PostgreSQL (validated district offices)
+
+### Core Components
+
 ```
 src/district_offices/
-├── core/               # Web scraping and HTML processing
-│   ├── scraper.py     # Sync scraping (legacy)
-│   └── async_scraper.py  # Async scraping with aiohttp/playwright
-├── processing/         # Data extraction
-│   ├── llm_processor.py  # Sync LLM (legacy)
-│   ├── async_llm_processor.py  # Async LLM with litellm
+├── storage/
+│   ├── models.py          # SQLAlchemy ORM models for both databases
+│   ├── sqlite_db.py       # SQLite database manager with full CRUD
+│   └── postgres_sync.py   # PostgreSQL import/export operations
+├── core/
+│   └── scraper.py         # HTML extraction with artifact storage
+├── processing/
+│   ├── llm_processor.py   # LLM extraction with SQLite artifacts
 │   └── contact_finder.py  # Contact page discovery
-├── storage/           # Data persistence
-│   ├── database.py    # Sync database (legacy)
-│   ├── async_database.py  # Async database with connection pooling
-│   └── staging.py     # Staging directory management
-├── validation/        # Human validation
-│   ├── interface.py   # Sync validation UI
-│   ├── async_interface.py  # Async validation UI
-│   ├── server.py      # HTTP server for browser validation
-│   └── runner.py      # Batch validation orchestration
+├── validation/
+│   ├── interface.py       # Human validation UI with SQLite backend
+│   └── runner.py          # Batch validation orchestration
 └── utils/
-    └── logging.py     # Provenance tracking
+    └── logging.py         # Provenance tracking in SQLite
 ```
-
-### Async-First Design
-
-The codebase uses async/await patterns throughout for:
-- **Concurrent Processing**: Process multiple representatives simultaneously via `--max-concurrent`
-- **Non-blocking I/O**: Web scraping with aiohttp, database queries with asyncpg
-- **Connection Pooling**: Automatic database connection management (10-20 connections)
-- **Parallel LLM Calls**: Multiple API requests can run concurrently
 
 ### Data Flow
 
-1. **Extraction Phase**:
-   - Get contact URLs from database → Download HTML (async) → Clean/extract sections →
-   - Send to LLM (async) → Parse response → Save to staging or continue
-
-2. **Validation Phase**:
-   - Load from staging → Generate HTML → Browser/terminal validation →
-   - Update status → Store in database (async)
-
-### Staging Directory
 ```
-data/staging/
-├── pending/      # Awaiting validation
-├── validated/    # Human-approved
-├── rejected/     # Human-rejected
-├── failed/       # Extraction errors
-└── queue.json    # Metadata
+PostgreSQL → SQLite → Extract → Artifacts → Validate → Export → PostgreSQL
+(members)    (sync)   (HTML)    (storage)  (human)   (offices) (district_offices)
 ```
+
+Key principles:
+- PostgreSQL touched only at start (import) and end (export)
+- All intermediate processing in SQLite with ACID transactions
+- Binary artifacts (HTML, LLM responses) stored as BLOBs in SQLite
+- Comprehensive provenance tracking for all operations
 
 ## Database Integration
 
-### Tables
-- **district_offices**: Validated office information
-- **members_contact**: Source URLs for contact pages
-- **extraction_queue**: Optional processing queue
+### SQLite Tables (Local Processing)
+- **members**: Local copy of congressional members
+- **member_contacts**: Contact page URLs
+- **extractions**: Main workflow tracking with status management
+- **extracted_offices**: Raw LLM extraction results
+- **validated_offices**: Human-approved offices ready for export
+- **artifacts**: Binary storage (HTML, LLM responses, validation files)
+- **provenance_logs**: Detailed operation tracking
+- **cache_entries**: HTTP response caching
+
+### PostgreSQL Tables (Upstream)
+- **members**: Source member data (read-only)
+- **members_contact**: Contact page URLs (read-only)
+- **district_offices**: Final validated data (write-only for exports)
 
 ### Connection Management
 ```python
-# Async operations automatically use connection pool
-offices = await get_bioguides_without_district_offices(db_uri)
+# SQLite operations use context managers
+from district_offices.storage.sqlite_db import SQLiteDatabase
 
-# Always close pool in scripts
-await close_connection_pool()
+db = SQLiteDatabase('data/district_offices.db')
+with db.get_session() as session:
+    members = session.query(Member).filter_by(currentmember=True).all()
+
+# PostgreSQL sync operations
+from district_offices.storage.postgres_sync import PostgreSQLSyncManager
+
+sync_manager = PostgreSQLSyncManager(postgres_uri, sqlite_db)
+stats = sync_manager.full_sync()  # Import members and contacts
 ```
 
 ## Code Patterns
 
-### Async Function Usage
+### Extraction Workflow
 ```python
-# Import async versions
-from district_offices import extract_html, AsyncLLMProcessor
-from district_offices.storage.async_database import store_district_office
+from district_offices import ProvenanceTracker
+from district_offices.core.scraper import extract_html
+from district_offices.processing.llm_processor import LLMProcessor
 
-# Use with await
-html, path = await extract_html(url)
-processor = AsyncLLMProcessor()
-offices = await processor.extract_district_offices(sections, bioguide_id)
-await store_district_office(office, db_uri)
+# Initialize tracking
+tracker = ProvenanceTracker()
+log_path = tracker.log_process_start(bioguide_id)  # Returns "extraction:{id}"
+
+# Extract with artifacts
+html_content, artifact_ref = extract_html(url, extraction_id=extraction_id)
+
+# Process with LLM
+processor = LLMProcessor()
+offices = processor.extract_district_offices(html_content, bioguide_id, extraction_id)
+
+# Complete tracking
+tracker.log_process_end(log_path, "completed")
 ```
 
-### Error Handling
+### Validation Workflow
 ```python
-try:
-    result = await process_single_bioguide(bioguide_id, db_uri, tracker)
-except asyncio.TimeoutError:
-    log.error("Operation timed out")
-except Exception as e:
-    log.error(f"Error: {e}")
-finally:
-    await close_connection_pool()
+from district_offices.validation.interface import ValidationInterface
+
+# Load from SQLite artifacts
+interface = ValidationInterface(browser_validation=True)
+is_valid, offices = interface.validate_office_data(
+    bioguide_id=bioguide_id,
+    offices=extracted_offices,
+    html_content=html_content,
+    url=source_url,
+    extraction_id=extraction_id
+)
 ```
 
-### Running from Sync Code
+### Backward Compatibility
+Legacy functions in `__init__.py` provide compatibility:
 ```python
-import asyncio
-
-# Single async function
-result = asyncio.run(extract_html(url))
-
-# Multiple concurrent
-results = asyncio.run(asyncio.gather(
-    extract_html(url1),
-    extract_html(url2)
-))
+# These work exactly as before but use SQLite backend
+from district_offices import (
+    get_bioguides_without_district_offices,
+    store_district_office,
+    StagingManager
+)
 ```
 
 ## Environment Variables
-- `DATABASE_URI`: PostgreSQL connection string
-- `ANTHROPIC_API_KEY`: API key for Claude LLM
+- `DATABASE_URI`: PostgreSQL connection string for import/export
+- `ANTHROPIC_API_KEY`: API key for Claude LLM  
+- `SQLITE_DB_PATH`: Custom SQLite database path (optional)
 
-## Testing
-- Uses pytest with asyncio support
-- Fixtures in `tests/conftest.py` provide mocks for database, HTML content, LLM responses
-- Run `pytest -v` for verbose output, `pytest -k async` for async tests only
+## Testing and Migration
 
-## Performance Considerations
-- Default max concurrent workers: 5 (adjustable via `--max-concurrent`)
-- Database connection pool: 10-20 connections
-- HTML/LLM responses are cached to reduce API calls
-- Staging operations are file-based for speed
+### Migration Verification
+```bash
+# Test full migration from PostgreSQL
+python test_sqlite_migration.py
 
-## Migration Notes
-- Sync modules available with `sync_` prefix for backward compatibility
-- `ThreadPoolExecutor` in old async_scraper.py replaced with true async/await
-- New `district-offices` command consolidates all functionality
-- Package must be installed: `uv pip install -e .`
+# Test scraping workflow
+python test_scrape_workflow.py
+```
+
+### Testing Strategy
+- Unit tests with pytest for individual components
+- Integration tests for database operations
+- Fixtures in `tests/conftest.py` provide mocks
+- SQLite in-memory databases for test isolation
+
+## Performance and Scalability
+
+### SQLite Optimizations
+- WAL mode enabled for concurrent reads during writes
+- Foreign keys enforced for data integrity  
+- Binary artifacts stored as BLOBs with compression options
+- Automatic cleanup of old extractions and artifacts
+
+### Caching Strategy
+- HTTP responses cached in SQLite `cache_entries` table
+- LLM responses stored as artifacts to avoid re-processing
+- Provenance logs maintain full audit trail
+
+## Migration from Legacy System
+
+The system maintains backward compatibility while using the new SQLite architecture:
+- Old filesystem staging directories replaced by SQLite tables
+- Raw SQL operations replaced by SQLAlchemy ORM
+- Async components removed for simplicity
+- All intermediate files now stored as SQLite BLOBs

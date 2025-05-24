@@ -6,7 +6,7 @@ Handles all local processing and staging operations.
 
 import logging
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 import time
 
@@ -144,7 +144,7 @@ class SQLiteDatabase:
     # ========================================================================
     
     def create_extraction(self, bioguide_id: str, source_url: str, 
-                         priority: int = 0) -> Extraction:
+                         priority: int = 0) -> int:
         """Create a new extraction record.
         
         Args:
@@ -153,7 +153,7 @@ class SQLiteDatabase:
             priority: Extraction priority
             
         Returns:
-            Extraction: Created extraction record
+            int: Created extraction ID
         """
         with self.get_session() as session:
             extraction = Extraction(
@@ -165,7 +165,8 @@ class SQLiteDatabase:
             )
             session.add(extraction)
             session.commit()
-            return extraction
+            # Return the ID while still in session
+            return extraction.id
     
     def get_pending_extractions(self, limit: int = 10) -> List[Extraction]:
         """Get pending extractions ordered by priority.
@@ -202,6 +203,34 @@ class SQLiteDatabase:
                     extraction.error_message = error_message
                 if status == 'validated':
                     extraction.validation_timestamp = int(time.time())
+                session.commit()
+    
+    def update_extraction_source_url(self, extraction_id: int, source_url: str):
+        """Update extraction source URL.
+        
+        Args:
+            extraction_id: Extraction ID
+            source_url: Source URL to set
+        """
+        with self.get_session() as session:
+            extraction = session.query(Extraction).get(extraction_id)
+            if extraction:
+                extraction.source_url = source_url
+                extraction.updated_at = datetime.utcnow()
+                session.commit()
+    
+    def update_extraction_error(self, extraction_id: int, error_message: str):
+        """Update extraction with error message.
+        
+        Args:
+            extraction_id: Extraction ID
+            error_message: Error message to set
+        """
+        with self.get_session() as session:
+            extraction = session.query(Extraction).get(extraction_id)
+            if extraction:
+                extraction.error_message = error_message
+                extraction.updated_at = datetime.utcnow()
                 session.commit()
     
     # ========================================================================
@@ -271,6 +300,20 @@ class SQLiteDatabase:
                 'synced_at': datetime.utcnow()
             }, synchronize_session=False)
             session.commit()
+    
+    def get_validated_offices_for_member(self, bioguide_id: str) -> List[ValidatedOffice]:
+        """Get validated offices for a specific member.
+        
+        Args:
+            bioguide_id: Member's bioguide ID
+            
+        Returns:
+            List[ValidatedOffice]: Validated offices for the member
+        """
+        with self.get_session() as session:
+            return session.query(ValidatedOffice).filter_by(
+                bioguide_id=bioguide_id
+            ).all()
     
     # ========================================================================
     # Artifact Management
@@ -438,6 +481,87 @@ class SQLiteDatabase:
                     SyncLog.status == 'completed'
                 )
             ).order_by(SyncLog.completed_at.desc()).first()
+    
+    # ========================================================================
+    # Cache Management
+    # ========================================================================
+    
+    def store_cache_entry(self, cache_key: str, cache_type: str, content: str, 
+                          content_type: str = 'text/plain'):
+        """Store content in cache.
+        
+        Args:
+            cache_key: Cache key (usually URL)
+            cache_type: Type of cache (html, llm_result, etc.)
+            content: Content to cache
+            content_type: MIME type
+        """
+        with self.get_session() as session:
+            # Remove existing entry if it exists
+            session.query(CacheEntry).filter_by(cache_key=cache_key).delete()
+            
+            # Create new entry
+            cache_entry = CacheEntry(
+                cache_key=cache_key,
+                cache_type=cache_type,
+                content=content.encode('utf-8'),
+                content_type=content_type
+            )
+            session.add(cache_entry)
+            session.commit()
+    
+    def get_cached_content(self, cache_key: str, cache_type: str) -> Optional[str]:
+        """Get content from cache.
+        
+        Args:
+            cache_key: Cache key to lookup
+            cache_type: Expected cache type
+            
+        Returns:
+            Optional[str]: Cached content if found
+        """
+        with self.get_session() as session:
+            cache_entry = session.query(CacheEntry).filter_by(
+                cache_key=cache_key,
+                cache_type=cache_type
+            ).first()
+            
+            if not cache_entry:
+                return None
+            
+            # Update last accessed
+            cache_entry.last_accessed = datetime.utcnow()
+            session.commit()
+            
+            return cache_entry.content.decode('utf-8')
+    
+    # ========================================================================
+    # Provenance and Logging
+    # ========================================================================
+    
+    def create_provenance_log(self, extraction_id: int, event_type: str, 
+                              event_data: Dict[str, Any]) -> int:
+        """Create a provenance log entry.
+        
+        Args:
+            extraction_id: Extraction ID
+            event_type: Type of event (stored as step_name)
+            event_data: Event data as JSON (stored as step_data)
+            
+        Returns:
+            int: Created log ID
+        """
+        with self.get_session() as session:
+            log_entry = ProvenanceLog(
+                extraction_id=extraction_id,
+                step_name=event_type,
+                step_timestamp=int(time.time()),
+                step_data=event_data,
+                created_at=datetime.utcnow()
+            )
+            session.add(log_entry)
+            session.commit()
+            return log_entry.id
     
     # ========================================================================
     # Statistics and Reporting
