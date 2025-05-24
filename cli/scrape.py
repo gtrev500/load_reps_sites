@@ -4,19 +4,15 @@ import argparse
 import logging
 import os
 import sys
-import time
-from typing import List, Dict, Optional, Any
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import our modules
 from district_offices.storage import database
-from district_offices.core.scraper import extract_html, clean_html, extract_contact_sections, capture_screenshot
+from district_offices.core.scraper import extract_html
 from district_offices.processing.llm_processor import LLMProcessor
-from district_offices.validation.interface import ValidationInterface
 from district_offices.utils.logging import ProvenanceTracker
-from district_offices.storage.staging import StagingManager
 
 # --- Logging Setup ---
 logging.basicConfig(
@@ -28,25 +24,17 @@ def process_single_bioguide(
     bioguide_id: str, 
     database_uri: str,
     tracker: ProvenanceTracker,
-    api_key: Optional[str] = None,
-    skip_validation: bool = False,
-    skip_storage: bool = False,
-    force: bool = False,
-    async_mode: bool = False,
-    staging_manager: Optional[StagingManager] = None
+    api_key: str = None,
+    force: bool = False
 ) -> bool:
-    """Process a single bioguide ID.
+    """Process a single bioguide ID: scrape HTML, send to LLM, store results.
     
     Args:
         bioguide_id: The bioguide ID to process
         database_uri: URI for the database connection
         tracker: ProvenanceTracker instance
         api_key: Optional Anthropic API key
-        skip_validation: Whether to skip human validation
-        skip_storage: Whether to skip database storage
         force: Whether to force processing even if data already exists
-        async_mode: Whether to run in async mode (saves to staging)
-        staging_manager: StagingManager instance for async mode
         
     Returns:
         True if the processing was successful, False otherwise
@@ -79,21 +67,9 @@ def process_single_bioguide(
         
         tracker.log_step(log_path, "extract_html", {"html_path": html_path})
         
-        # Step 4: Capture a screenshot (or HTML reference)
-        screenshot_path = capture_screenshot(html_path, bioguide_id)
-        tracker.log_step(log_path, "capture_screenshot", {"screenshot_path": screenshot_path})
-        
-        # Step 5: Clean and extract relevant HTML sections
-        cleaned_html = clean_html(html_content)
-        contact_sections = extract_contact_sections(cleaned_html)
-        
-        # Save the cleaned HTML and contact sections as artifacts
-        tracker.save_artifact(log_path, "cleaned_html", cleaned_html, "html")
-        tracker.save_artifact(log_path, "contact_sections", contact_sections, "html")
-        
-        # Step 6: Use LLM to extract district office information
+        # Step 4: Use LLM to extract district office information
         llm_processor = LLMProcessor(model_name="claude-3-haiku-20240307", api_key=api_key)
-        extracted_offices = llm_processor.extract_district_offices(contact_sections, bioguide_id)
+        extracted_offices = llm_processor.extract_district_offices(html_content, bioguide_id)
         
         # Save the extracted offices as an artifact
         tracker.save_json_artifact(log_path, "extracted_offices", {"offices": extracted_offices})
@@ -103,74 +79,24 @@ def process_single_bioguide(
             tracker.log_process_end(log_path, "completed", "No district offices found")
             return True
         
-        # Step 7: Validate the extracted information (if not skipped)
-        if not skip_validation:
-            # Check if browser validation is requested
-            browser_validation = kwargs.get('browser_validation', False)
-            validation_interface = ValidationInterface(browser_validation=browser_validation)
-            # contact_sections is already defined and available here
-            validation_html_path = validation_interface.generate_validation_html(
-                bioguide_id, html_content, extracted_offices, contact_url, contact_sections
-            )
+        # Step 5: Store the district office information
+        success = False
+        for office in extracted_offices:
+            # Add the bioguide_id to each office
+            office_data = office.copy()
+            office_data["bioguide_id"] = bioguide_id
             
-            is_valid, validated_offices = validation_interface.validate_office_data(
-                bioguide_id, extracted_offices, html_content, contact_url, contact_sections
-            )
-            
-            tracker.log_validation_artifacts(log_path, validation_html_path, extracted_offices, is_valid)
-            
-            if not is_valid:
-                log.warning(f"Extraction rejected for {bioguide_id}")
-                tracker.log_process_end(log_path, "rejected", "Human validation rejected the extraction")
-                return False
-            
-            offices_to_store = validated_offices
-        else:
-            log.info(f"Skipping validation for {bioguide_id}")
-            offices_to_store = extracted_offices
+            # Store in the database
+            store_success = database.store_district_office(office_data, database_uri)
+            success = success or store_success
         
-        # Step 8: Store the district office information or save to staging
-        if async_mode and staging_manager:
-            # Save to staging for later validation
-            artifacts = {
-                "html_content": html_path,
-                "contact_sections": tracker.save_artifact(log_path, "contact_sections", contact_sections, "html"),
-                "screenshot": screenshot_path
-            }
-            
-            staging_path = staging_manager.save_extraction(
-                bioguide_id=bioguide_id,
-                source_url=contact_url,
-                extracted_offices=offices_to_store,
-                artifacts=artifacts,
-                provenance_log=log_path,
-                metadata={"llm_model": "claude-3-haiku-20240307"}
-            )
-            
-            log.info(f"Saved extraction for {bioguide_id} to staging: {staging_path}")
-            tracker.log_process_end(log_path, "staged", "Extraction saved to staging for validation")
-        elif not skip_storage:
-            # Store directly in database (synchronous mode)
-            success = False
-            for office in offices_to_store:
-                # Add the bioguide_id to each office
-                office_data = office.copy()
-                office_data["bioguide_id"] = bioguide_id
-                
-                # Store in the database
-                store_success = database.store_district_office(office_data, database_uri)
-                success = success or store_success
-            
-            if success:
-                log.info(f"Successfully stored district offices for {bioguide_id}")
-                tracker.log_process_end(log_path, "stored", "District offices stored in database")
-            else:
-                log.error(f"Failed to store district offices for {bioguide_id}")
-                tracker.log_process_end(log_path, "failed", "Failed to store district offices")
-                return False
+        if success:
+            log.info(f"Successfully stored district offices for {bioguide_id}")
+            tracker.log_process_end(log_path, "stored", "District offices stored in database")
         else:
-            log.info(f"Skipping storage for {bioguide_id}")
-            tracker.log_process_end(log_path, "completed", "Storage skipped")
+            log.error(f"Failed to store district offices for {bioguide_id}")
+            tracker.log_process_end(log_path, "failed", "Failed to store district offices")
+            return False
         
         return True
     except Exception as e:
@@ -199,21 +125,6 @@ def main():
         help="Database URI (if not provided, uses DATABASE_URI environment variable)"
     )
     parser.add_argument(
-        "--skip-validation",
-        action="store_true",
-        help="Skip human validation of extracted information"
-    )
-    parser.add_argument(
-        "--browser-validation",
-        action="store_true",
-        help="Use browser-based validation with Accept/Reject buttons"
-    )
-    parser.add_argument(
-        "--skip-storage",
-        action="store_true",
-        help="Skip storing information in the database"
-    )
-    parser.add_argument(
         "--api-key",
         type=str,
         help="Anthropic API key (if not provided, uses ANTHROPIC_API_KEY environment variable)"
@@ -222,16 +133,6 @@ def main():
         "--force",
         action="store_true",
         help="Force processing even if district office data already exists"
-    )
-    parser.add_argument(
-        "--async-mode",
-        action="store_true",
-        help="Run in async mode (saves extractions to staging for later validation)"
-    )
-    parser.add_argument(
-        "--staging-dir",
-        type=str,
-        help="Custom staging directory path (for async mode)"
     )
     parser.add_argument(
         "-v",
@@ -255,23 +156,6 @@ def main():
     # Get API key
     api_key = args.api_key or os.environ.get("ANTHROPIC_API_KEY")
     
-    # Handle async mode settings
-    async_mode = args.async_mode
-    if async_mode:
-        # In async mode, automatically skip validation and storage
-        skip_validation = True
-        skip_storage = True
-        log.info("Async mode enabled - validation and storage will be skipped")
-    else:
-        skip_validation = args.skip_validation
-        skip_storage = args.skip_storage
-    
-    # Initialize staging manager if in async mode
-    staging_manager = None
-    if async_mode:
-        staging_manager = StagingManager(args.staging_dir)
-        log.info(f"Staging manager initialized: {staging_manager.staging_root}")
-    
     # Initialize provenance tracker
     tracker = ProvenanceTracker()
     
@@ -284,12 +168,7 @@ def main():
             database_uri,
             tracker,
             api_key,
-            skip_validation,
-            skip_storage,
-            args.force,
-            async_mode,
-            staging_manager,
-            browser_validation=args.browser_validation
+            args.force
         )
         
         if success:
@@ -318,12 +197,7 @@ def main():
                 database_uri,
                 tracker,
                 api_key,
-                skip_validation,
-                skip_storage,
-                args.force,
-                async_mode,
-                staging_manager,
-                browser_validation=args.browser_validation
+                args.force
             )
             
             if success:

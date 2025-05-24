@@ -6,8 +6,6 @@ from district_offices.config import Config
 # Core functionality
 from district_offices.core.scraper import (
     extract_html,
-    clean_html,
-    extract_contact_sections,
     capture_screenshot,
 )
 
@@ -33,6 +31,7 @@ from district_offices.validation.interface import ValidationInterface
 
 # Utils
 from district_offices.utils.logging import ProvenanceTracker
+from district_offices.utils.html import clean_html
 
 __version__ = "0.1.0"
 
@@ -42,8 +41,8 @@ __all__ = [
     # Core
     "extract_html",
     "capture_screenshot", 
+    # Utils
     "clean_html",
-    "extract_contact_sections",
     # Processing
     "LLMProcessor",
     # Storage

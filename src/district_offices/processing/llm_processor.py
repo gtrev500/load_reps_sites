@@ -12,6 +12,7 @@ import litellm
 
 # Import centralized configuration
 from district_offices.config import Config
+from district_offices.utils.html import clean_html
 
 # --- Logging Setup ---
 logging.basicConfig(
@@ -54,23 +55,8 @@ class LLMProcessor:
         Returns:
             Cleaned HTML content as string
         """
-        from bs4 import BeautifulSoup
-        
-        try:
-            soup = BeautifulSoup(html_content, 'html.parser')
-            
-            # Remove script, style, meta, and SVG tags to clean up the HTML
-            for tag in soup(['script', 'style', 'meta', 'link', 'head', 'svg', 'path', 'clippath', 'g']):
-                tag.decompose()
-            
-            # Get the cleaned HTML content
-            cleaned_html = str(soup)
-            log.info("Successfully cleaned HTML content by removing script/style tags")
-            return cleaned_html
-            
-        except Exception as e:
-            log.warning(f"Error cleaning HTML: {e}, using original content")
-            return html_content
+        # Use the shared clean_html utility
+        return clean_html(html_content)
         
     def generate_system_prompt(self) -> str:
         """Generate the system prompt for the LLM.
@@ -158,14 +144,7 @@ class LLMProcessor:
         if not api_key_present:
             # Simulate a response for development without API key
             log.warning("Using simulated LLM response (no relevant API key found)")
-            simulated_response = self._simulate_response(html_content, bioguide_id)
-            
-            # Save simulated response for reference
-            result_path = self.results_dir / f"{extraction_id}_simulated.json"
-            with open(result_path, 'w', encoding='utf-8') as f:
-                json.dump(simulated_response, f, indent=2)
-            
-            return simulated_response
+            raise Exception("No API key found, Add it to the environment variables.")
         
         system_prompt = self.generate_system_prompt()
         
@@ -291,52 +270,7 @@ class LLMProcessor:
             log.error(traceback.format_exc())
             return []
     
-    def _simulate_response(self, html_content: str, bioguide_id: str) -> List[Dict[str, Any]]:
-        """Simulate an LLM response for development purposes.
-        
-        Args:
-            html_content: HTML content from the representative's contact page
-            bioguide_id: Bioguide ID for reference
-            
-        Returns:
-            Simulated LLM response as a list of dictionaries
-        """
-        # Basic simulation of district office extraction
-        # In a real implementation, this would be replaced by the actual LLM call
-        
-        # Check if HTML contains certain keywords to simulate finding offices
-        if "office location" in html_content.lower() or "district office" in html_content.lower():
-            # Simulate finding 1-3 offices
-            import random
-            num_offices = random.randint(1, 3)
-            
-            offices = []
-            for i in range(num_offices):
-                office = {
-                    "office_type": "District Office",
-                    "address": f"{100 + i*100} Main Street",
-                    "city": f"City{i+1}",
-                    "state": "CA",
-                    "zip": f"9{i+1}000",
-                    "phone": f"(555) 555-{1000+i}"
-                }
-                
-                # Randomly add some optional fields
-                if random.choice([True, False]):
-                    office["suite"] = f"Suite {200 + i*100}"
-                if random.choice([True, False]):
-                    office["building"] = "Federal Building"
-                if random.choice([True, False]):
-                    office["fax"] = f"(555) 555-{2000+i}"
-                if random.choice([True, False]):
-                    office["hours"] = "Monday-Friday 9am-5pm"
-                    
-                offices.append(office)
-                
-            return offices
-        else:
-            # Simulate not finding any offices
-            return []
+
 
     def format_for_display(self, offices: List[Dict[str, Any]], bioguide_id: str) -> str:
         """Format the extracted office information for display to humans.
