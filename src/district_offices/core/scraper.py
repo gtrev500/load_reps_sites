@@ -11,21 +11,14 @@ from urllib.parse import urljoin
 import hashlib
 import json
 
+# Import centralized configuration
+from district_offices.config import Config
+
 # --- Logging Setup ---
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 log = logging.getLogger(__name__)
-
-# --- Constants ---
-REQUEST_TIMEOUT = 30
-USER_AGENT = "Mozilla/5.0 (compatible; DistrictOfficeScraper/1.0)"
-HTML_CACHE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..", "cache", "html")
-IMAGE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..", "cache", "screenshots")
-
-# Ensure cache directories exist
-os.makedirs(HTML_CACHE_DIR, exist_ok=True)
-os.makedirs(IMAGE_DIR, exist_ok=True)
 
 def extract_html(url: str, use_cache: bool = True) -> Tuple[Optional[str], Optional[str]]:
     """Extract HTML content from a URL.
@@ -39,26 +32,26 @@ def extract_html(url: str, use_cache: bool = True) -> Tuple[Optional[str], Optio
     """
     # Generate a filename for caching based on the URL
     url_hash = hashlib.md5(url.encode()).hexdigest()
-    cache_path = os.path.join(HTML_CACHE_DIR, f"{url_hash}.html")
+    cache_path = Config.HTML_CACHE_DIR / f"{url_hash}.html"
     
     # Check if we have a cached version
-    if use_cache and os.path.exists(cache_path):
+    if use_cache and cache_path.exists():
         try:
             with open(cache_path, 'r', encoding='utf-8') as f:
                 log.info(f"Using cached HTML for {url}")
-                return f.read(), cache_path
+                return f.read(), str(cache_path)
         except Exception as e:
             log.warning(f"Failed to read cached HTML for {url}: {e}")
     
     # Make the request
     headers = {
-        "User-Agent": USER_AGENT,
+        "User-Agent": Config.USER_AGENT,
         "Accept": "text/html,application/xhtml+xml,application/xml",
     }
     
     try:
         log.info(f"Fetching HTML from {url}")
-        response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
+        response = requests.get(url, headers=headers, timeout=Config.REQUEST_TIMEOUT)
         response.raise_for_status()  # Raise an exception for HTTP errors
         
         # Save to cache
@@ -66,7 +59,7 @@ def extract_html(url: str, use_cache: bool = True) -> Tuple[Optional[str], Optio
             f.write(response.text)
         
         log.info(f"Successfully fetched HTML from {url}")
-        return response.text, cache_path
+        return response.text, str(cache_path)
     except requests.exceptions.RequestException as e:
         log.error(f"Failed to fetch HTML from {url}: {e}")
         return None, None
@@ -90,7 +83,7 @@ def capture_screenshot(html_path: str, bioguide_id: str) -> Optional[str]:
     # In a real implementation, this might use a headless browser to render a screenshot
     # For this prototype, we'll just copy the HTML file with a different name
     timestamp = int(time.time())
-    screenshot_path = os.path.join(IMAGE_DIR, f"{bioguide_id}_{timestamp}.html")
+    screenshot_path = Config.SCREENSHOT_DIR / f"{bioguide_id}_{timestamp}.html"
     
     try:
         with open(html_path, 'r', encoding='utf-8') as src:
@@ -100,7 +93,7 @@ def capture_screenshot(html_path: str, bioguide_id: str) -> Optional[str]:
             dest.write(html_content)
             
         log.info(f"Saved HTML reference for {bioguide_id}")
-        return screenshot_path
+        return str(screenshot_path)
     except Exception as e:
         log.error(f"Failed to save HTML reference for {bioguide_id}: {e}")
         return None
@@ -145,51 +138,42 @@ def extract_contact_sections(html_content: str) -> str:
         soup = BeautifulSoup(html_content, 'html.parser')
         contact_sections = []
         
+        # Get contact keywords from config
+        keywords = Config.get_contact_keywords()
+        
         # Look for common container elements that might contain office locations
-        # Case 1: Elements with 'office' in id, class, or text
-        office_elements = soup.find_all(lambda tag: (
-            tag.name in ['div', 'section', 'article', 'footer', 'aside'] and
-            (
-                (tag.has_attr('id') and 'office' in tag['id'].lower()) or
-                (tag.has_attr('class') and any('office' in c.lower() for c in tag['class'])) or
-                (tag.string and 'office' in tag.string.lower())
-            )
-        ))
-        
-        # Case 2: Elements with 'contact' or 'location' in id, class, or text
-        contact_elements = soup.find_all(lambda tag: (
-            tag.name in ['div', 'section', 'article', 'footer', 'aside'] and
-            (
-                (tag.has_attr('id') and ('contact' in tag['id'].lower() or 'location' in tag['id'].lower())) or
-                (tag.has_attr('class') and any(('contact' in c.lower() or 'location' in c.lower()) for c in tag['class'])) or
-                (tag.string and ('contact' in tag.string.lower() or 'location' in tag.string.lower()))
-            )
-        ))
-        
-        # Case 3: Headers that might indicate district office sections
-        header_elements = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], text=lambda t: t and ('office' in t.lower() or 'location' in t.lower() or 'contact' in t.lower()))
-        
-        # Add office elements to the contact sections
-        for elem in office_elements:
-            contact_sections.append(str(elem))
+        for keyword in keywords:
+            # Case 1: Elements with keyword in id, class, or text
+            elements = soup.find_all(lambda tag: (
+                tag.name in ['div', 'section', 'article', 'footer', 'aside'] and
+                (
+                    (tag.has_attr('id') and keyword in tag['id'].lower()) or
+                    (tag.has_attr('class') and any(keyword in c.lower() for c in tag['class'])) or
+                    (tag.string and keyword in tag.string.lower())
+                )
+            ))
             
-        # Add contact elements to the contact sections
-        for elem in contact_elements:
-            # Only add if not already a descendant of an office element
-            if not any(elem in office.descendants for office in office_elements):
-                contact_sections.append(str(elem))
-                
-        # For headers, get the header and the next sibling content that might contain the office info
-        for header in header_elements:
-            # Only add if not already within an office or contact element
-            if (not any(header in office.descendants for office in office_elements) and 
-                not any(header in contact.descendants for contact in contact_elements)):
-                # Get the header and its next sibling (likely the content container)
+            # Add elements to contact sections
+            for elem in elements:
+                elem_str = str(elem)
+                if elem_str not in contact_sections:
+                    contact_sections.append(elem_str)
+        
+        # Case 2: Headers that might indicate district office sections  
+        for keyword in ['office', 'location', 'contact']:
+            header_elements = soup.find_all(
+                ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], 
+                text=lambda t: t and keyword in t.lower()
+            )
+            
+            for header in header_elements:
+                # Get the header and its next sibling content
                 section = str(header)
                 sibling = header.find_next_sibling()
                 if sibling:
                     section += str(sibling)
-                contact_sections.append(section)
+                if section not in contact_sections:
+                    contact_sections.append(section)
         
         # Join the contact sections
         result = "\n".join(contact_sections)

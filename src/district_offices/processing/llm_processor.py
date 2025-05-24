@@ -10,6 +10,9 @@ from typing import Dict, List, Optional, Any
 # Import LiteLLM for multi-provider LLM support
 import litellm
 
+# Import centralized configuration
+from district_offices.config import Config
+
 # --- Logging Setup ---
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -19,28 +22,25 @@ log = logging.getLogger(__name__)
 class LLMProcessor:
     """Class for processing HTML content using LiteLLM for multi-provider LLM support."""
     
-    def __init__(self, model_name: str = "claude-3-haiku-20240307", api_key: Optional[str] = None):
+    def __init__(self, model_name: str = None, api_key: Optional[str] = None):
         """Initialize the LLM processor.
         
         Args:
-            model_name: LiteLLM compatible model string (e.g., "claude-3-haiku-20240307", "gpt-4-turbo")
+            model_name: LiteLLM compatible model string (uses Config.DEFAULT_MODEL if None)
             api_key: Optional API key. LiteLLM typically uses environment variables.
         """
-        # Store the LiteLLM model string
-        self.model = model_name
+        # Use config default if model_name not provided
+        self.model = model_name or Config.DEFAULT_MODEL
         
-        # Create directory for storing LLM responses
-        self.results_dir = os.path.join(os.path.dirname(__file__), "cache", "llm_results")
-        os.makedirs(self.results_dir, exist_ok=True)
+        # Results directory from config
+        self.results_dir = Config.LLM_RESULTS_DIR
         
         log.info(f"Initialized LLMProcessor with model: {self.model}")
         
-        # Check for relevant API keys (LiteLLM handles these via environment variables)
-        relevant_api_keys = [
-            "ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GOOGLE_API_KEY", 
-            "COHERE_API_KEY", "REPLICATE_API_TOKEN"
-        ]
-        api_key_present = any(os.environ.get(key) for key in relevant_api_keys)
+        # Check for relevant API keys using Config
+        api_key_present = bool(Config.get_api_key("anthropic") or 
+                              Config.get_api_key("openai") or 
+                              Config.get_api_key("google"))
         
         if not api_key_present:
             log.warning("No relevant LLM API key found in environment variables. Will simulate responses for development.")
@@ -150,12 +150,10 @@ class LLMProcessor:
         # Generate unique ID for this extraction
         extraction_id = f"{bioguide_id}_{int(time.time())}"
         
-        # Check for API keys based on environment variables
-        relevant_api_keys = [
-            "ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GOOGLE_API_KEY", 
-            "COHERE_API_KEY", "REPLICATE_API_TOKEN"
-        ]
-        api_key_present = any(os.environ.get(key) for key in relevant_api_keys)
+        # Check for API keys using Config
+        api_key_present = bool(Config.get_api_key("anthropic") or 
+                              Config.get_api_key("openai") or 
+                              Config.get_api_key("google"))
         
         if not api_key_present:
             # Simulate a response for development without API key
@@ -163,7 +161,7 @@ class LLMProcessor:
             simulated_response = self._simulate_response(html_content, bioguide_id)
             
             # Save simulated response for reference
-            result_path = os.path.join(self.results_dir, f"{extraction_id}_simulated.json")
+            result_path = self.results_dir / f"{extraction_id}_simulated.json"
             with open(result_path, 'w', encoding='utf-8') as f:
                 json.dump(simulated_response, f, indent=2)
             
@@ -174,12 +172,10 @@ class LLMProcessor:
         # Clean the HTML content
         cleaned_html = self._clean_html_content(html_content)
         
-        # Ensure cleaned HTML is not excessively long. Truncation might still be needed,
-        # but be mindful that truncating HTML can break its structure.
-        max_html_length = 150000  # Adjust as needed, token limits are the real concern
-        if len(cleaned_html) > max_html_length:
-            log.warning(f"HTML content too long ({len(cleaned_html)} chars), truncating to {max_html_length} chars. This might break HTML structure.")
-            user_content = cleaned_html[:max_html_length]
+        # Ensure cleaned HTML is not excessively long using Config
+        if len(cleaned_html) > Config.MAX_HTML_LENGTH:
+            log.warning(f"HTML content too long ({len(cleaned_html)} chars), truncating to {Config.MAX_HTML_LENGTH} chars. This might break HTML structure.")
+            user_content = cleaned_html[:Config.MAX_HTML_LENGTH]
         else:
             user_content = cleaned_html
         
@@ -191,18 +187,18 @@ class LLMProcessor:
         try:
             log.info(f"Calling LLM ({self.model}) via LiteLLM to extract district offices for {bioguide_id}")
             
-            # Make the API call using LiteLLM
+            # Make the API call using LiteLLM with Config values
             response = litellm.completion(
                 model=self.model,
                 messages=llm_messages,
-                max_tokens=4000  # Adjust as needed
+                max_tokens=Config.MAX_TOKENS,
+                temperature=Config.TEMPERATURE
             )
             
             # Cost Tracking
             try:
                 cost = litellm.completion_cost(completion_response=response)
                 log.info(f"LLM call cost for {extraction_id}: ${cost:.6f}")
-                # Store this cost for tracking purposes
             except Exception as cost_e:
                 log.warning(f"Could not calculate cost for {extraction_id}: {cost_e}")
             
@@ -211,7 +207,6 @@ class LLMProcessor:
             
             # Parse the JSON response
             try:
-                
                 # More robust JSON extraction
                 # Try different patterns to extract JSON
                 json_text = None
@@ -269,12 +264,12 @@ class LLMProcessor:
                 return []
             
             # Save the full response for reference
-            response_path = os.path.join(self.results_dir, f"{extraction_id}_response.txt")
+            response_path = self.results_dir / f"{extraction_id}_response.txt"
             with open(response_path, 'w', encoding='utf-8') as f:
                 f.write(f"Model: {self.model}\n\n{response_text}")
             
             # Save extracted offices for reference
-            result_path = os.path.join(self.results_dir, f"{extraction_id}.json")
+            result_path = self.results_dir / f"{extraction_id}.json"
             with open(result_path, 'w', encoding='utf-8') as f:
                 json.dump(result_json, f, indent=2)
             
@@ -286,14 +281,12 @@ class LLMProcessor:
             return []
         except litellm.exceptions.RateLimitError as e:
             log.error(f"LiteLLM Rate Limit Error: {e}")
-            # Implement retry logic or backoff if needed
             return []
-        except litellm.exceptions.APIError as e:  # Catch other LiteLLM API errors
+        except litellm.exceptions.APIError as e:
             log.error(f"LiteLLM API Error: {e}")
             return []
-        except Exception as e:  # Catch-all for other unexpected errors
+        except Exception as e:
             log.error(f"Failed to extract district offices with LLM ({self.model}): {e}")
-            # Log the full traceback for unexpected errors
             import traceback
             log.error(traceback.format_exc())
             return []
