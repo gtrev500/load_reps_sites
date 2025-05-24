@@ -18,6 +18,19 @@ from district_offices.validation.interface import ValidationInterface
 from district_offices.storage.staging import StagingManager, ExtractionStatus
 from district_offices.utils.logging import ProvenanceTracker
 
+# Import SQLite database for artifact loading
+_sqlite_db = None
+
+def _get_sqlite_db():
+    """Get SQLite database instance (lazy loading)."""
+    global _sqlite_db
+    if _sqlite_db is None:
+        from district_offices.storage.sqlite_db import SQLiteDatabase
+        from district_offices.config import Config
+        db_path = Config.get_sqlite_db_path()
+        _sqlite_db = SQLiteDatabase(str(db_path))
+    return _sqlite_db
+
 # --- Logging Setup ---
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -57,28 +70,49 @@ def validate_from_staging(
         # Load required artifacts
         html_content = ""
         contact_sections = ""
+        db = _get_sqlite_db()
         
-        # Load HTML content
-        html_path = None
+        # Get the actual extraction object to find artifacts
+        extraction = db.get_latest_extraction(bioguide_id)
+        extraction_id = extraction.id if extraction else None
+        
+        # Load HTML content from artifacts
         if "html_content" in extraction_data.artifacts:
-            html_path = extraction_data.artifacts["html_content"]
-        elif "html" in extraction_data.artifacts:
-            html_path = extraction_data.artifacts["html"]
+            artifact_ref = extraction_data.artifacts["html_content"]
+            if artifact_ref.startswith("artifact:"):
+                artifact_id = int(artifact_ref.split(":")[1])
+                html_content = db.get_artifact_content(artifact_id)
+                if html_content:
+                    html_content = html_content.decode('utf-8')
+            elif os.path.exists(artifact_ref):  # Legacy file path
+                with open(artifact_ref, 'r', encoding='utf-8') as f:
+                    html_content = f.read()
         
-        if html_path and os.path.exists(html_path):
-            with open(html_path, 'r', encoding='utf-8') as f:
-                html_content = f.read()
-        else:
-            log.warning(f"HTML content file not found: {html_path}")
+        if not html_content and extraction:
+            # Try to find HTML artifact directly
+            for artifact in extraction.artifacts:
+                if artifact.artifact_type == "html":
+                    html_content = artifact.content.decode('utf-8')
+                    break
         
-        # Load contact sections
+        # Load contact sections from artifacts
         if "contact_sections" in extraction_data.artifacts:
-            contact_sections_path = extraction_data.artifacts["contact_sections"]
-            if os.path.exists(contact_sections_path):
-                with open(contact_sections_path, 'r', encoding='utf-8') as f:
+            artifact_ref = extraction_data.artifacts["contact_sections"]
+            if artifact_ref.startswith("artifact:"):
+                artifact_id = int(artifact_ref.split(":")[1])
+                contact_sections = db.get_artifact_content(artifact_id)
+                if contact_sections:
+                    contact_sections = contact_sections.decode('utf-8')
+            elif os.path.exists(artifact_ref):  # Legacy file path
+                with open(artifact_ref, 'r', encoding='utf-8') as f:
                     contact_sections = f.read()
-            else:
-                log.warning(f"Contact sections file not found: {contact_sections_path}")
+        
+        if not contact_sections and extraction:
+            # Try to find contact sections artifact directly
+            for artifact in extraction.artifacts:
+                if artifact.artifact_type == "contact_sections":
+                    contact_sections = artifact.content.decode('utf-8')
+                    break
         
         # Initialize validation interface
         validation_interface = ValidationInterface(browser_validation=browser_validation)
@@ -90,7 +124,8 @@ def validate_from_staging(
             offices=extraction_data.extracted_offices,
             html_content=html_content,
             url=extraction_data.source_url,
-            contact_sections=contact_sections
+            contact_sections=contact_sections,
+            extraction_id=extraction_id
         )
         
         # Mark extraction as validated or rejected

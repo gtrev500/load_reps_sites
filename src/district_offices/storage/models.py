@@ -120,7 +120,7 @@ class Extraction(SQLiteBase):
     offices = relationship("ExtractedOffice", back_populates="extraction", cascade="all, delete-orphan")
     artifacts = relationship("Artifact", back_populates="extraction", cascade="all, delete-orphan")
     provenance_logs = relationship("ProvenanceLog", back_populates="extraction", cascade="all, delete-orphan")
-    metadata = relationship("ExtractionMetadata", back_populates="extraction", uselist=False, cascade="all, delete-orphan")
+    extraction_metadata = relationship("ExtractionMetadata", back_populates="extraction", uselist=False, cascade="all, delete-orphan")
 
 
 class ExtractedOffice(SQLiteBase):
@@ -264,4 +264,4 @@ class ExtractionMetadata(SQLiteBase):
     metadata_json = Column(JSON)  # Flexible JSON storage
     
     # Relationships
-    extraction = relationship("Extraction", back_populates="metadata")
+    extraction = relationship("Extraction", back_populates="extraction_metadata")

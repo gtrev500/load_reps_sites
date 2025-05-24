@@ -1,5 +1,11 @@
 """District Offices extraction package."""
 
+import os
+from enum import Enum
+from typing import Optional, List, Dict, Any
+from dataclasses import dataclass
+from sqlalchemy import and_
+
 # Configuration
 from district_offices.config import Config
 
@@ -12,18 +18,18 @@ from district_offices.core.scraper import (
 # Processing 
 from district_offices.processing.llm_processor import LLMProcessor
 
-# Storage
-from district_offices.storage.database import (
-    get_db_connection,
-    get_contact_page_url,
-    get_bioguides_without_district_offices,
-    store_district_office,
-    check_district_office_exists,
-)
-from district_offices.storage.staging import (
-    StagingManager,
-    ExtractionStatus,
-    ExtractionData,
+# New Storage - ORM models and managers
+from district_offices.storage.sqlite_db import SQLiteDatabase
+from district_offices.storage.postgres_sync import PostgreSQLSyncManager
+from district_offices.storage.models import (
+    Member,
+    MemberContact,
+    Extraction,
+    ExtractedOffice,
+    ValidatedOffice,
+    Artifact,
+    ProvenanceLog,
+    CacheEntry,
 )
 
 # Validation
@@ -35,6 +41,198 @@ from district_offices.utils.html import clean_html
 
 __version__ = "0.1.0"
 
+# --- Backward Compatibility Wrappers ---
+# These provide the same interface as the old database.py functions
+# but use the new SQLite-based storage system
+
+# Create a shared SQLite database instance
+_sqlite_db: Optional[SQLiteDatabase] = None
+
+def _get_sqlite_db() -> SQLiteDatabase:
+    """Get or create the shared SQLite database instance."""
+    global _sqlite_db
+    if _sqlite_db is None:
+        db_path = Config.get_sqlite_db_path()
+        _sqlite_db = SQLiteDatabase(str(db_path))
+    return _sqlite_db
+
+def get_db_connection(database_uri: str):
+    """Legacy compatibility - returns None as we use ORM now."""
+    # This function is no longer needed with ORM
+    return None
+
+def get_contact_page_url(bioguide_id: str, database_uri: str) -> Optional[str]:
+    """Get contact page URL for a bioguide ID."""
+    db = _get_sqlite_db()
+    with db.get_session() as session:
+        contact = session.query(MemberContact).filter_by(
+            bioguideid=bioguide_id
+        ).first()
+        return contact.contact_page if contact else None
+
+def get_bioguides_without_district_offices(database_uri: str) -> List[str]:
+    """Get list of bioguide IDs without district offices."""
+    # First sync from upstream if needed
+    sync_manager = PostgreSQLSyncManager(database_uri, _get_sqlite_db())
+    sync_manager.sync_members_from_upstream()
+    sync_manager.sync_contacts_from_upstream()
+    
+    # Get members without offices
+    db = _get_sqlite_db()
+    with db.get_session() as session:
+        members = session.query(Member).filter(
+            and_(
+                Member.currentmember == True,
+                ~Member.validated_offices.any()
+            )
+        ).all()
+        # Extract IDs while still in session
+        bioguide_ids = [m.bioguideid for m in members]
+    return bioguide_ids
+
+def store_district_office(office_data: Dict[str, Any], database_uri: str) -> bool:
+    """Store validated district office data."""
+    db = _get_sqlite_db()
+    try:
+        # Create validated office
+        validated_office = ValidatedOffice(
+            office_id=office_data.get('office_id', f"{office_data['bioguide_id']}-{office_data.get('city', 'unknown')}"),
+            bioguide_id=office_data['bioguide_id'],
+            address=office_data.get('address'),
+            suite=office_data.get('suite'),
+            building=office_data.get('building'),
+            city=office_data.get('city'),
+            state=office_data.get('state'),
+            zip=office_data.get('zip'),
+            phone=office_data.get('phone'),
+            fax=office_data.get('fax'),
+            hours=office_data.get('hours')
+        )
+        
+        with db.get_session() as session:
+            session.add(validated_office)
+            session.commit()
+        
+        # Export to upstream
+        sync_manager = PostgreSQLSyncManager(database_uri, db)
+        sync_manager.export_validated_offices()
+        
+        return True
+    except Exception as e:
+        print(f"Error storing district office: {e}")
+        return False
+
+def check_district_office_exists(bioguide_id: str, database_uri: str) -> bool:
+    """Check if district office exists for a bioguide ID."""
+    db = _get_sqlite_db()
+    offices = db.get_validated_offices_for_member(bioguide_id)
+    return len(offices) > 0
+
+# Staging compatibility
+class ExtractionStatus(Enum):
+    """Status of an extraction."""
+    PENDING = "pending"
+    VALIDATED = "validated"
+    REJECTED = "rejected"
+    FAILED = "failed"
+
+@dataclass
+class ExtractionData:
+    """Legacy extraction data structure."""
+    bioguide_id: str
+    status: ExtractionStatus
+    extraction_timestamp: int
+    validation_timestamp: Optional[int] = None
+    source_url: Optional[str] = None
+    extracted_offices: List[Dict[str, Any]] = None
+    artifacts: Dict[str, str] = None
+    error_message: Optional[str] = None
+
+    def __post_init__(self):
+        if self.extracted_offices is None:
+            self.extracted_offices = []
+        if self.artifacts is None:
+            self.artifacts = {}
+
+class StagingManager:
+    """Legacy staging manager - now backed by SQLite."""
+    
+    def __init__(self, staging_dir: Optional[str] = None):
+        """Initialize staging manager with SQLite backend."""
+        self.db = _get_sqlite_db()
+        self.staging_root = staging_dir or "data/staging"  # Keep for compatibility
+    
+    def get_extraction_data(self, bioguide_id: str) -> Optional[ExtractionData]:
+        """Get extraction data for a bioguide ID."""
+        extraction = self.db.get_latest_extraction(bioguide_id)
+        if not extraction:
+            return None
+        
+        # Convert to legacy format
+        artifacts = {}
+        for artifact in extraction.artifacts:
+            if artifact.artifact_type == "html":
+                artifacts["html_content"] = f"artifact:{artifact.id}"
+            elif artifact.artifact_type == "contact_sections":
+                artifacts["contact_sections"] = f"artifact:{artifact.id}"
+        
+        offices = []
+        for office in extraction.offices:
+            offices.append({
+                "address": office.address,
+                "suite": office.suite,
+                "building": office.building,
+                "city": office.city,
+                "state": office.state,
+                "zip": office.zip,
+                "phone": office.phone,
+                "fax": office.fax,
+                "hours": office.hours
+            })
+        
+        return ExtractionData(
+            bioguide_id=extraction.bioguide_id,
+            status=ExtractionStatus(extraction.status),
+            extraction_timestamp=extraction.extraction_timestamp,
+            validation_timestamp=extraction.validation_timestamp,
+            source_url=extraction.source_url,
+            extracted_offices=offices,
+            artifacts=artifacts,
+            error_message=extraction.error_message
+        )
+    
+    def load_pending_extractions(self) -> List[str]:
+        """Get list of pending extractions."""
+        extractions = self.db.get_extractions_by_status('pending')
+        return [e.bioguide_id for e in extractions]
+    
+    def load_all_extractions(self) -> List[str]:
+        """Get list of all extractions."""
+        with self.db.get_session() as session:
+            extractions = session.query(Extraction).all()
+            return [e.bioguide_id for e in extractions]
+    
+    def mark_validated(self, bioguide_id: str, is_valid: bool) -> bool:
+        """Mark extraction as validated or rejected."""
+        status = 'validated' if is_valid else 'rejected'
+        return self.db.update_extraction_status(bioguide_id, status)
+    
+    def get_staging_summary(self) -> Dict[str, int]:
+        """Get summary of staging status."""
+        with self.db.get_session() as session:
+            pending = session.query(Extraction).filter_by(status='pending').count()
+            validated = session.query(Extraction).filter_by(status='validated').count()
+            rejected = session.query(Extraction).filter_by(status='rejected').count()
+            failed = session.query(Extraction).filter_by(status='failed').count()
+            
+            return {
+                'pending': pending,
+                'validated': validated,
+                'rejected': rejected,
+                'failed': failed,
+                'total': pending + validated + rejected + failed
+            }
+
 __all__ = [
     # Configuration
     "Config",
@@ -45,7 +243,18 @@ __all__ = [
     "clean_html",
     # Processing
     "LLMProcessor",
-    # Storage
+    # New Storage
+    "SQLiteDatabase",
+    "PostgreSQLSyncManager",
+    "Member",
+    "MemberContact",
+    "Extraction",
+    "ExtractedOffice",
+    "ValidatedOffice",
+    "Artifact",
+    "ProvenanceLog",
+    "CacheEntry",
+    # Legacy Storage (backward compatibility)
     "get_db_connection",
     "get_contact_page_url",
     "get_bioguides_without_district_offices",

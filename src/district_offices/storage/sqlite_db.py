@@ -55,12 +55,14 @@ class SQLiteDatabase:
         SQLiteBase.metadata.create_all(self.engine)
         
         # Set pragmas for better performance
+        from sqlalchemy import text
         with self.engine.connect() as conn:
-            conn.execute("PRAGMA foreign_keys = ON")
-            conn.execute("PRAGMA journal_mode = WAL")
-            conn.execute("PRAGMA synchronous = NORMAL")
-            conn.execute("PRAGMA temp_store = MEMORY")
-            conn.execute("PRAGMA mmap_size = 30000000000")
+            conn.execute(text("PRAGMA foreign_keys = ON"))
+            conn.execute(text("PRAGMA journal_mode = WAL"))
+            conn.execute(text("PRAGMA synchronous = NORMAL"))
+            conn.execute(text("PRAGMA temp_store = MEMORY"))
+            conn.execute(text("PRAGMA mmap_size = 30000000000"))
+            conn.commit()
     
     @contextmanager
     def get_session(self) -> Session:
@@ -122,6 +124,20 @@ class SQLiteDatabase:
                     ~Member.validated_offices.any()
                 )
             ).all()
+    
+    def get_member_contact(self, bioguide_id: str) -> Optional[MemberContact]:
+        """Get contact information for a member.
+        
+        Args:
+            bioguide_id: Member's bioguide ID
+            
+        Returns:
+            MemberContact: Contact information or None
+        """
+        with self.get_session() as session:
+            return session.query(MemberContact).filter_by(
+                bioguideid=bioguide_id
+            ).first()
     
     # ========================================================================
     # Extraction Management

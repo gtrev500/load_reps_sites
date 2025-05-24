@@ -50,6 +50,19 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
+# Lazy import to avoid circular imports
+_sqlite_db = None
+
+def _get_sqlite_db():
+    """Get SQLite database instance (lazy loading)."""
+    global _sqlite_db
+    if _sqlite_db is None:
+        from district_offices.storage.sqlite_db import SQLiteDatabase
+        from district_offices.config import Config
+        db_path = Config.get_sqlite_db_path()
+        _sqlite_db = SQLiteDatabase(str(db_path))
+    return _sqlite_db
+
 class ValidationInterface:
     """Class for handling human validation of extracted district office information."""
     
@@ -59,14 +72,9 @@ class ValidationInterface:
         Args:
             browser_validation: Whether to use browser-based validation (default: False)
         """
-        # Create directories for validated and rejected data
-        self.validated_dir = os.path.join(os.path.dirname(__file__), "data", "validated")
-        self.rejected_dir = os.path.join(os.path.dirname(__file__), "data", "rejected")
-        os.makedirs(self.validated_dir, exist_ok=True)
-        os.makedirs(self.rejected_dir, exist_ok=True)
-        
         self.browser_validation = browser_validation
         self.validation_server = None
+        self.db = _get_sqlite_db()
 
     def generate_validation_html(
         self,
@@ -385,7 +393,8 @@ class ValidationInterface:
         offices: List[Dict[str, Any]],
         html_content: str,
         url: str,
-        contact_sections: str
+        contact_sections: str,
+        extraction_id: Optional[int] = None
     ) -> Tuple[bool, Optional[List[Dict[str, Any]]]]:
         """Validate the extracted office data through human review.
         
@@ -461,14 +470,14 @@ class ValidationInterface:
             log.info(f"User approved office data for {bioguide_id}")
             
             # Save the validated data
-            self._save_validated_data(bioguide_id, offices, html_content, url)
+            self._save_validated_data(bioguide_id, offices, html_content, url, extraction_id)
             
             return True, offices
         else:
             log.info(f"User rejected office data for {bioguide_id}")
             
             # Save the rejected data
-            self._save_rejected_data(bioguide_id, offices, html_content, url)
+            self._save_rejected_data(bioguide_id, offices, html_content, url, extraction_id)
             
             return False, None
     
@@ -477,67 +486,88 @@ class ValidationInterface:
         bioguide_id: str, 
         offices: List[Dict[str, Any]], 
         html_content: str,
-        url: str
+        url: str,
+        extraction_id: Optional[int] = None
     ) -> None:
-        """Save validated data.
+        """Save validated data to SQLite.
         
         Args:
             bioguide_id: The bioguide ID being processed
             offices: The extracted office information
             html_content: The HTML content from the representative's page
             url: The URL that was scraped
+            extraction_id: Optional extraction ID to update
         """
         timestamp = int(time.time())
-        data_dir = os.path.join(self.validated_dir, bioguide_id)
-        os.makedirs(data_dir, exist_ok=True)
         
-        # Save the office data
-        with open(os.path.join(data_dir, f"{timestamp}_offices.json"), 'w', encoding='utf-8') as f:
-            json.dump({
+        # If we have an extraction_id, update its status
+        if extraction_id:
+            self.db.update_extraction_status(extraction_id, 'validated')
+            
+            # Store validation artifacts
+            validation_data = {
                 "bioguide_id": bioguide_id,
                 "url": url,
                 "offices": offices,
                 "validation_timestamp": timestamp,
                 "validation_date": time.strftime("%Y-%m-%d %H:%M:%S")
-            }, f, indent=2)
+            }
+            self.db.store_artifact(
+                extraction_id=extraction_id,
+                artifact_type='validation_result',
+                filename=f"{bioguide_id}_{timestamp}_validation.json",
+                content=json.dumps(validation_data, indent=2).encode('utf-8'),
+                content_type='application/json'
+            )
         
-        # Save the HTML content
-        with open(os.path.join(data_dir, f"{timestamp}_source.html"), 'w', encoding='utf-8') as f:
-            f.write(html_content)
+        # Create validated office records
+        for office in offices:
+            office_id = f"{bioguide_id}-{office.get('city', 'unknown')}-{timestamp}"
+            self.db.create_validated_office(
+                office_id=office_id,
+                bioguide_id=bioguide_id,
+                office_data=office
+            )
         
-        log.info(f"Saved validated data for {bioguide_id}")
+        log.info(f"Saved validated data for {bioguide_id} to SQLite")
     
     def _save_rejected_data(
         self, 
         bioguide_id: str, 
         offices: List[Dict[str, Any]], 
         html_content: str,
-        url: str
+        url: str,
+        extraction_id: Optional[int] = None
     ) -> None:
-        """Save rejected data.
+        """Save rejected data to SQLite.
         
         Args:
             bioguide_id: The bioguide ID being processed
             offices: The extracted office information
             html_content: The HTML content from the representative's page
             url: The URL that was scraped
+            extraction_id: Optional extraction ID to update
         """
         timestamp = int(time.time())
-        data_dir = os.path.join(self.rejected_dir, bioguide_id)
-        os.makedirs(data_dir, exist_ok=True)
         
-        # Save the office data
-        with open(os.path.join(data_dir, f"{timestamp}_offices.json"), 'w', encoding='utf-8') as f:
-            json.dump({
+        # If we have an extraction_id, update its status
+        if extraction_id:
+            self.db.update_extraction_status(extraction_id, 'rejected')
+            
+            # Store rejection artifacts
+            rejection_data = {
                 "bioguide_id": bioguide_id,
                 "url": url,
                 "offices": offices,
                 "rejection_timestamp": timestamp,
                 "rejection_date": time.strftime("%Y-%m-%d %H:%M:%S")
-            }, f, indent=2)
+            }
+            self.db.store_artifact(
+                extraction_id=extraction_id,
+                artifact_type='rejection_result',
+                filename=f"{bioguide_id}_{timestamp}_rejection.json",
+                content=json.dumps(rejection_data, indent=2).encode('utf-8'),
+                content_type='application/json'
+            )
         
-        # Save the HTML content
-        with open(os.path.join(data_dir, f"{timestamp}_source.html"), 'w', encoding='utf-8') as f:
-            f.write(html_content)
-        
-        log.info(f"Saved rejected data for {bioguide_id}")
+        log.info(f"Saved rejected data for {bioguide_id} to SQLite")

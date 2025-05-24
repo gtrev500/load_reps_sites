@@ -13,6 +13,9 @@ from district_offices.storage import database
 from district_offices.core.scraper import extract_html
 from district_offices.processing.llm_processor import LLMProcessor
 from district_offices.utils.logging import ProvenanceTracker
+from district_offices.storage.sqlite_db import SQLiteDatabase
+from district_offices.storage.postgres_sync import PostgreSQLSyncManager
+from district_offices.config import Config
 
 # --- Logging Setup ---
 logging.basicConfig(
@@ -39,8 +42,17 @@ def process_single_bioguide(
     Returns:
         True if the processing was successful, False otherwise
     """
-    # Start tracking the process
+    # Get SQLite database instance
+    db_path = Config.get_sqlite_db_path()
+    db = SQLiteDatabase(str(db_path))
+    
+    # Start tracking the process - this creates an extraction record
     log_path = tracker.log_process_start(bioguide_id)
+    
+    # Extract extraction_id from log_path
+    extraction_id = None
+    if log_path.startswith("extraction:"):
+        extraction_id = int(log_path.split(":")[1])
     
     try:
         # Step 1: Check if district office information already exists (unless forced)
@@ -58,18 +70,22 @@ def process_single_bioguide(
         
         tracker.log_step(log_path, "get_contact_url", {"contact_url": contact_url})
         
+        # Update extraction with source URL
+        if extraction_id:
+            db.update_extraction_source_url(extraction_id, contact_url)
+        
         # Step 3: Extract HTML from the contact page
-        html_content, html_path = extract_html(contact_url)
+        html_content, artifact_ref = extract_html(contact_url, extraction_id=extraction_id)
         if not html_content:
             log.error(f"Failed to extract HTML for {bioguide_id}")
             tracker.log_process_end(log_path, "failed", "Failed to extract HTML")
             return False
         
-        tracker.log_step(log_path, "extract_html", {"html_path": html_path})
+        tracker.log_step(log_path, "extract_html", {"artifact_ref": artifact_ref})
         
         # Step 4: Use LLM to extract district office information
         llm_processor = LLMProcessor(model_name="claude-3-haiku-20240307", api_key=api_key)
-        extracted_offices = llm_processor.extract_district_offices(html_content, bioguide_id)
+        extracted_offices = llm_processor.extract_district_offices(html_content, bioguide_id, extraction_id)
         
         # Save the extracted offices as an artifact
         tracker.save_json_artifact(log_path, "extracted_offices", {"offices": extracted_offices})
@@ -79,20 +95,27 @@ def process_single_bioguide(
             tracker.log_process_end(log_path, "completed", "No district offices found")
             return True
         
-        # Step 5: Store the district office information
+        # Step 5: Store the extracted office information in SQLite
+        if extraction_id:
+            for office in extracted_offices:
+                db.create_extracted_office(extraction_id, office)
+        
+        # Step 6: For now, directly store validated offices (skip validation step)
         success = False
         for office in extracted_offices:
             # Add the bioguide_id to each office
             office_data = office.copy()
             office_data["bioguide_id"] = bioguide_id
             
-            # Store in the database
+            # Store in the database (this will create validated office and sync to PostgreSQL)
             store_success = database.store_district_office(office_data, database_uri)
             success = success or store_success
         
         if success:
             log.info(f"Successfully stored district offices for {bioguide_id}")
             tracker.log_process_end(log_path, "stored", "District offices stored in database")
+            if extraction_id:
+                db.update_extraction_status(extraction_id, "validated")
         else:
             log.error(f"Failed to store district offices for {bioguide_id}")
             tracker.log_process_end(log_path, "failed", "Failed to store district offices")
@@ -102,6 +125,9 @@ def process_single_bioguide(
     except Exception as e:
         log.error(f"Error processing {bioguide_id}: {e}")
         tracker.log_process_end(log_path, "failed", f"Error: {str(e)}")
+        if extraction_id:
+            db.update_extraction_status(extraction_id, "failed")
+            db.update_extraction_error(extraction_id, str(e))
         return False
 
 def main():

@@ -20,34 +20,45 @@ class Config:
     # === Database Settings ===
     CONNECTION_TIMEOUT = 60
     
-    # === Cache Directories ===
+    # === Project Root ===
     PROJECT_ROOT = Path(__file__).parent.parent.parent
-    CACHE_ROOT = PROJECT_ROOT / "cache"
-    HTML_CACHE_DIR = CACHE_ROOT / "html"
-    SCREENSHOT_DIR = CACHE_ROOT / "screenshots"
-    LLM_RESULTS_DIR = CACHE_ROOT / "llm_results"
     
-    # === Data Directories ===
+    # === Data Directories - Minimal set for SQLite ===
     DATA_ROOT = PROJECT_ROOT / "data" 
-    STAGING_DIR = DATA_ROOT / "staging"
-    VALIDATED_DIR = STAGING_DIR / "validated"
-    REJECTED_DIR = STAGING_DIR / "rejected"
-    PENDING_DIR = STAGING_DIR / "pending"
-    FAILED_DIR = STAGING_DIR / "failed"
+    TEMP_DIR = PROJECT_ROOT / "temp"  # For temporary files during processing
     
-    # === Logging ===
+    # === Legacy Cache Directories (to be phased out) ===
+    # These are kept temporarily for backward compatibility but will be removed
+    CACHE_ROOT = PROJECT_ROOT / "cache"
+    HTML_CACHE_DIR = CACHE_ROOT / "html"  # Will migrate to SQLite artifacts
+    SCREENSHOT_DIR = CACHE_ROOT / "screenshots"  # Will migrate to SQLite artifacts
+    LLM_RESULTS_DIR = CACHE_ROOT / "llm_results"  # Will migrate to SQLite artifacts
+    
+    # === Legacy Data Directories (to be phased out) ===
+    STAGING_DIR = DATA_ROOT / "staging"  # Now handled by SQLite
+    VALIDATED_DIR = STAGING_DIR / "validated"  # Now in SQLite validated_offices table
+    REJECTED_DIR = STAGING_DIR / "rejected"  # Now tracked in SQLite extractions table
+    PENDING_DIR = STAGING_DIR / "pending"  # Now tracked in SQLite extractions table
+    FAILED_DIR = STAGING_DIR / "failed"  # Now tracked in SQLite extractions table
+    
+    # === Legacy Logging Directories (to be phased out) ===
     LOGS_ROOT = PROJECT_ROOT / "logs"
-    ARTIFACTS_DIR = LOGS_ROOT / "artifacts"
-    PROVENANCE_DIR = LOGS_ROOT / "provenance"
-    RUNS_DIR = LOGS_ROOT / "runs"
+    ARTIFACTS_DIR = LOGS_ROOT / "artifacts"  # Now in SQLite artifacts table
+    PROVENANCE_DIR = LOGS_ROOT / "provenance"  # Now in SQLite provenance_logs table
+    RUNS_DIR = LOGS_ROOT / "runs"  # Now tracked in SQLite
     
     @classmethod
     def get_db_uri(cls) -> str:
-        """Get database URI from environment variables or default."""
+        """Get PostgreSQL database URI from environment variables or default."""
         return os.getenv(
             'DATABASE_URI', 
             'postgresql://postgres:postgres@localhost:5432/gov'
         )
+    
+    @classmethod
+    def get_sqlite_db_path(cls) -> Path:
+        """Get SQLite database file path."""
+        return Path(os.getenv('SQLITE_DB_PATH', cls.DATA_ROOT / 'district_offices.db'))
     
     @classmethod
     def get_api_key(cls, provider: str = "anthropic") -> str:
@@ -61,22 +72,10 @@ class Config:
     
     @classmethod
     def ensure_directories(cls):
-        """Create all necessary directories if they don't exist."""
+        """Create minimal necessary directories."""
         directories = [
-            cls.CACHE_ROOT,
-            cls.HTML_CACHE_DIR,
-            cls.SCREENSHOT_DIR, 
-            cls.LLM_RESULTS_DIR,
-            cls.DATA_ROOT,
-            cls.STAGING_DIR,
-            cls.VALIDATED_DIR,
-            cls.REJECTED_DIR,
-            cls.PENDING_DIR,
-            cls.FAILED_DIR,
-            cls.LOGS_ROOT,
-            cls.ARTIFACTS_DIR,
-            cls.PROVENANCE_DIR,
-            cls.RUNS_DIR,
+            cls.DATA_ROOT,  # For SQLite database file
+            cls.TEMP_DIR,   # For temporary files during processing
         ]
         
         for directory in directories:

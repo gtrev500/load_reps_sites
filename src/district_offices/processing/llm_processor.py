@@ -20,6 +20,18 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
+# Lazy import to avoid circular imports
+_sqlite_db = None
+
+def _get_sqlite_db():
+    """Get SQLite database instance (lazy loading)."""
+    global _sqlite_db
+    if _sqlite_db is None:
+        from district_offices.storage.sqlite_db import SQLiteDatabase
+        db_path = Config.get_sqlite_db_path()
+        _sqlite_db = SQLiteDatabase(str(db_path))
+    return _sqlite_db
+
 class LLMProcessor:
     """Class for processing HTML content using LiteLLM for multi-provider LLM support."""
     
@@ -32,9 +44,6 @@ class LLMProcessor:
         """
         # Use config default if model_name not provided
         self.model = model_name or Config.DEFAULT_MODEL
-        
-        # Results directory from config
-        self.results_dir = Config.LLM_RESULTS_DIR
         
         log.info(f"Initialized LLMProcessor with model: {self.model}")
         
@@ -123,12 +132,13 @@ class LLMProcessor:
         Focus only on returning the JSON array with the extracted information. Return an empty array `[]` if no district offices are found.
         """
 
-    def extract_district_offices(self, html_content: str, bioguide_id: str) -> List[Dict[str, Any]]:
+    def extract_district_offices(self, html_content: str, bioguide_id: str, extraction_id: Optional[int] = None) -> List[Dict[str, Any]]:
         """Extract district office information from HTML content using the LLM via LiteLLM.
         
         Args:
             html_content: Structured HTML content from the representative's contact page.
             bioguide_id: Bioguide ID for reference.
+            extraction_id: Optional extraction ID to associate artifacts with.
             
         Returns:
             List of dictionaries containing extracted district office information.
@@ -242,15 +252,27 @@ class LLMProcessor:
                 log.error(f"Raw response: {response_text}")
                 return []
             
-            # Save the full response for reference
-            response_path = self.results_dir / f"{extraction_id}_response.txt"
-            with open(response_path, 'w', encoding='utf-8') as f:
-                f.write(f"Model: {self.model}\n\n{response_text}")
-            
-            # Save extracted offices for reference
-            result_path = self.results_dir / f"{extraction_id}.json"
-            with open(result_path, 'w', encoding='utf-8') as f:
-                json.dump(result_json, f, indent=2)
+            # Save the full response and extracted offices as artifacts if we have an extraction_id
+            if extraction_id:
+                db = _get_sqlite_db()
+                
+                # Store raw LLM response
+                db.store_artifact(
+                    extraction_id=extraction_id,
+                    artifact_type='llm_response',
+                    filename=f"{bioguide_id}_{int(time.time())}_llm_response.txt",
+                    content=f"Model: {self.model}\n\n{response_text}".encode('utf-8'),
+                    content_type='text/plain'
+                )
+                
+                # Store extracted offices JSON
+                db.store_artifact(
+                    extraction_id=extraction_id,
+                    artifact_type='extracted_offices',
+                    filename=f"{bioguide_id}_{int(time.time())}_offices.json",
+                    content=json.dumps(result_json, indent=2).encode('utf-8'),
+                    content_type='application/json'
+                )
             
             log.info(f"Successfully extracted {len(result_json)} district offices for {bioguide_id} using {self.model}")
             return result_json
