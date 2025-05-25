@@ -359,11 +359,6 @@ def main():
         help="Re-validate previously processed extractions"
     )
     parser.add_argument(
-        "--staging-dir",
-        type=str,
-        help="Custom staging directory path"
-    )
-    parser.add_argument(
         "--db-uri",
         type=str,
         help="Database URI for auto-storage (if not provided, uses DATABASE_URI environment variable)"
@@ -377,11 +372,6 @@ def main():
         "--open-multiple",
         action="store_true",
         help="Open validation windows for multiple extractions (cosmetic batch review)"
-    )
-    parser.add_argument(
-        "--no-store",
-        action="store_true",
-        help="Skip validation processing and storage (for data exploration only)"
     )
     parser.add_argument(
         "--max-windows",
@@ -417,7 +407,7 @@ def main():
             sys.exit(1)
     
     # Initialize staging manager
-    staging_manager = StagingManager(args.staging_dir)
+    staging_manager = StagingManager()
     log.info(f"Staging manager initialized: {staging_manager.staging_root}")
     
     # Validate specific bioguide ID
