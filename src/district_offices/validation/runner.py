@@ -95,9 +95,6 @@ def validate_from_staging(
                 html_content = db.get_artifact_content(artifact_id)
                 if html_content:
                     html_content = html_content.decode('utf-8')
-            elif os.path.exists(artifact_ref):  # Legacy file path
-                with open(artifact_ref, 'r', encoding='utf-8') as f:
-                    html_content = f.read()
         
         # Load contact sections from artifacts
         if "contact_sections" in extraction_data.artifacts:
@@ -107,9 +104,6 @@ def validate_from_staging(
                 contact_sections = db.get_artifact_content(artifact_id)
                 if contact_sections:
                     contact_sections = contact_sections.decode('utf-8')
-            elif os.path.exists(artifact_ref):  # Legacy file path
-                with open(artifact_ref, 'r', encoding='utf-8') as f:
-                    contact_sections = f.read()
         
         # Initialize validation interface
         validation_interface = ValidationInterface(browser_validation=browser_validation)
@@ -282,27 +276,28 @@ def open_multiple_validation_windows(
                 log.warning(f"No extraction data found for {bioguide_id}, skipping")
                 continue
             
-            # Load required artifacts with minimal error handling since this is cosmetic
+            # Load required artifacts from SQLite
             html_content = ""
             contact_sections = ""
+            db = _get_sqlite_db()
             
-            # Load HTML content
-            html_path = None
+            # Load HTML content from artifacts
             if "html_content" in extraction_data.artifacts:
-                html_path = extraction_data.artifacts["html_content"]
-            elif "html" in extraction_data.artifacts:
-                html_path = extraction_data.artifacts["html"]
+                artifact_ref = extraction_data.artifacts["html_content"]
+                if artifact_ref.startswith("artifact:"):
+                    artifact_id = int(artifact_ref.split(":")[1])
+                    content = db.get_artifact_content(artifact_id)
+                    if content:
+                        html_content = content.decode('utf-8')
             
-            if html_path and os.path.exists(html_path):
-                with open(html_path, 'r', encoding='utf-8') as f:
-                    html_content = f.read()
-            
-            # Load contact sections
+            # Load contact sections from artifacts
             if "contact_sections" in extraction_data.artifacts:
-                contact_sections_path = extraction_data.artifacts["contact_sections"]
-                if os.path.exists(contact_sections_path):
-                    with open(contact_sections_path, 'r', encoding='utf-8') as f:
-                        contact_sections = f.read()
+                artifact_ref = extraction_data.artifacts["contact_sections"]
+                if artifact_ref.startswith("artifact:"):
+                    artifact_id = int(artifact_ref.split(":")[1])
+                    content = db.get_artifact_content(artifact_id)
+                    if content:
+                        contact_sections = content.decode('utf-8')
             
             # Generate validation HTML
             validation_html_path = validation_interface.generate_validation_html(

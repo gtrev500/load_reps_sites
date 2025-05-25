@@ -11,7 +11,6 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "district-offices=cli.async_scrape:run",
             "district-offices-scrape=cli.scrape:main",
             "district-offices-validate=district_offices.validation.runner:main",
             "district-offices-find-contacts=district_offices.processing.contact_finder:main",

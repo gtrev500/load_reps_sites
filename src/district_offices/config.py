@@ -27,25 +27,6 @@ class Config:
     DATA_ROOT = PROJECT_ROOT / "data" 
     TEMP_DIR = PROJECT_ROOT / "temp"  # For temporary files during processing
     
-    # === Legacy Cache Directories (to be phased out) ===
-    # These are kept temporarily for backward compatibility but will be removed
-    CACHE_ROOT = PROJECT_ROOT / "cache"
-    HTML_CACHE_DIR = CACHE_ROOT / "html"  # Will migrate to SQLite artifacts
-    SCREENSHOT_DIR = CACHE_ROOT / "screenshots"  # Will migrate to SQLite artifacts
-    LLM_RESULTS_DIR = CACHE_ROOT / "llm_results"  # Will migrate to SQLite artifacts
-    
-    # === Legacy Data Directories (to be phased out) ===
-    STAGING_DIR = DATA_ROOT / "staging"  # Now handled by SQLite
-    VALIDATED_DIR = STAGING_DIR / "validated"  # Now in SQLite validated_offices table
-    REJECTED_DIR = STAGING_DIR / "rejected"  # Now tracked in SQLite extractions table
-    PENDING_DIR = STAGING_DIR / "pending"  # Now tracked in SQLite extractions table
-    FAILED_DIR = STAGING_DIR / "failed"  # Now tracked in SQLite extractions table
-    
-    # === Legacy Logging Directories (to be phased out) ===
-    LOGS_ROOT = PROJECT_ROOT / "logs"
-    ARTIFACTS_DIR = LOGS_ROOT / "artifacts"  # Now in SQLite artifacts table
-    PROVENANCE_DIR = LOGS_ROOT / "provenance"  # Now in SQLite provenance_logs table
-    RUNS_DIR = LOGS_ROOT / "runs"  # Now tracked in SQLite
     
     @classmethod
     def get_db_uri(cls) -> str:

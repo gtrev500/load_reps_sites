@@ -57,10 +57,6 @@ def _get_sqlite_db() -> SQLiteDatabase:
         _sqlite_db = SQLiteDatabase(str(db_path))
     return _sqlite_db
 
-def get_db_connection(database_uri: str):
-    """Legacy compatibility - returns None as we use ORM now."""
-    # This function is no longer needed with ORM
-    return None
 
 def get_contact_page_url(bioguide_id: str, database_uri: str) -> Optional[str]:
     """Get contact page URL for a bioguide ID."""
