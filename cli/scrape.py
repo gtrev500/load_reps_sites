@@ -51,6 +51,21 @@ def process_single_bioguide(
     db_path = Config.get_sqlite_db_path()
     db = SQLiteDatabase(str(db_path))
     
+    # Step 1: Check if extraction already exists (unless forced)
+    if not force:
+        # Check if there's already an extraction for this bioguide
+        with db.get_session() as session:
+            existing_extraction = session.query(Extraction).filter(
+                Extraction.bioguide_id == bioguide_id
+            ).order_by(
+                Extraction.created_at.desc()
+            ).first()
+            
+            if existing_extraction and existing_extraction.status in ['pending', 'validated', 'processing']:
+                status = existing_extraction.status  # Extract value while in session
+                log.info(f"Extraction already exists for {bioguide_id} with status: {status}")
+                return True
+    
     # Start tracking the process - this creates an extraction record
     log_path = tracker.log_process_start(bioguide_id)
     
@@ -60,21 +75,6 @@ def process_single_bioguide(
         extraction_id = int(log_path.split(":")[1])
     
     try:
-        # Step 1: Check if extraction already exists (unless forced)
-        if not force:
-            # Check if there's already an extraction for this bioguide
-            with db.get_session() as session:
-                existing_extraction = session.query(Extraction).filter(
-                    Extraction.bioguide_id == bioguide_id
-                ).order_by(
-                    Extraction.created_at.desc()
-                ).first()
-                
-                if existing_extraction and existing_extraction.status in ['pending', 'validated', 'processing']:
-                    status = existing_extraction.status  # Extract value while in session
-                    log.info(f"Extraction already exists for {bioguide_id} with status: {status}")
-                    tracker.log_process_end(log_path, "skipped", f"Extraction already exists with status: {status}")
-                    return True
         
         # Step 2: Get the contact page URL
         contact_url = get_contact_page_url(bioguide_id, database_uri)
