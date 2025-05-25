@@ -26,6 +26,7 @@ src/district_offices/storage/sqlite_db.py
 src/district_offices/utils/__init__.py
 src/district_offices/utils/html.py
 src/district_offices/utils/logging.py
+src/district_offices/utils/url_utils.py
 src/district_offices/validation/__init__.py
 src/district_offices/validation/interface.py
 src/district_offices/validation/runner.py

@@ -89,18 +89,18 @@ def process_single_bioguide(
         if extraction_id:
             db.update_extraction_source_url(extraction_id, contact_url)
         
-        # Step 3: Extract HTML from the contact page
-        html_content, artifact_ref = extract_html(contact_url, extraction_id=extraction_id)
-        if not html_content:
-            log.error(f"Failed to extract HTML for {bioguide_id}")
-            tracker.log_process_end(log_path, "failed", "Failed to extract HTML")
-            return False
-        
-        tracker.log_step(log_path, "extract_html", {"artifact_ref": artifact_ref})
-        
-        # Step 4: Use LLM to extract district office information
+        # Step 3 & 4: Extract HTML and district offices with automatic fallbacks
         llm_processor = LLMProcessor(api_key=api_key)
-        extracted_offices = llm_processor.extract_district_offices(html_content, bioguide_id, extraction_id)
+        extracted_offices = llm_processor.extract_district_offices_with_fallbacks(
+            contact_url, 
+            bioguide_id, 
+            extraction_id
+        )
+        
+        tracker.log_step(log_path, "extract_with_fallbacks", {
+            "primary_url": contact_url,
+            "offices_found": len(extracted_offices)
+        })
         
         # Save the extracted offices as an artifact
         tracker.save_json_artifact(log_path, "extracted_offices", {"offices": extracted_offices})

@@ -14,6 +14,7 @@ import litellm
 # Import centralized configuration
 from district_offices.config import Config
 from district_offices.utils.html import clean_html
+from district_offices.utils.url_utils import generate_fallback_urls
 
 # --- Logging Setup ---
 logging.basicConfig(
@@ -394,3 +395,94 @@ class LLMProcessor:
             formatted += "\n"
             
         return formatted
+
+    def extract_district_offices_with_fallbacks(
+        self, 
+        primary_url: str, 
+        bioguide_id: str, 
+        extraction_id: Optional[int] = None
+    ) -> List[Dict[str, Any]]:
+        """Extract district offices trying primary URL first, then fallbacks if 0 results.
+        
+        This method implements a loop-based approach that tries the primary URL first,
+        and if no offices are extracted, automatically tries fallback URLs until
+        offices are found or all URLs are exhausted.
+        
+        Args:
+            primary_url: The primary contact page URL to try first
+            bioguide_id: Bioguide ID for reference and logging
+            extraction_id: Optional extraction ID to associate artifacts with
+            
+        Returns:
+            List of dictionaries containing extracted district office information
+        """
+        # Build URL queue: primary first, then fallbacks
+        urls_to_try = [primary_url] + generate_fallback_urls(primary_url)
+        
+        log.info(f"Starting extraction for {bioguide_id} with {len(urls_to_try)} URLs to try")
+        
+        for i, url in enumerate(urls_to_try):
+            is_fallback = i > 0
+            attempt_type = "fallback" if is_fallback else "primary"
+            
+            log.info(f"Attempting {attempt_type} URL ({i+1}/{len(urls_to_try)}): {url}")
+            
+            # Use existing scraper infrastructure for HTML extraction
+            from district_offices.core.scraper import extract_html
+            html_content, artifact_ref = extract_html(url, extraction_id=extraction_id)
+            
+            if not html_content:
+                log.warning(f"Failed to fetch HTML from {attempt_type} URL: {url}")
+                continue
+            
+            log.info(f"Successfully fetched HTML from {attempt_type} URL: {url}")
+            
+            # Use existing LLM extraction method (reuses all the existing logic)
+            offices = self.extract_district_offices(html_content, bioguide_id, extraction_id)
+            
+            if offices:
+                log.info(f"Successfully extracted {len(offices)} offices from {attempt_type} URL: {url}")
+                
+                # Store additional metadata about successful URL if it was a fallback
+                if is_fallback and extraction_id:
+                    db = _get_sqlite_db()
+                    
+                    # Store fallback success metadata
+                    db.store_artifact(
+                        extraction_id=extraction_id,
+                        artifact_type='fallback_metadata',
+                        filename=f"{bioguide_id}_{int(time.time())}_fallback_success.json",
+                        content=json.dumps({
+                            "original_url": primary_url,
+                            "successful_url": url,
+                            "attempt_number": i + 1,
+                            "total_attempts": len(urls_to_try),
+                            "offices_found": len(offices)
+                        }, indent=2).encode('utf-8'),
+                        content_type='application/json'
+                    )
+                
+                return offices
+            else:
+                log.info(f"0 offices extracted from {attempt_type} URL: {url}")
+        
+        log.warning(f"No offices found in primary URL or any of the {len(urls_to_try)-1} fallback URLs for {bioguide_id}")
+        
+        # Store failure metadata if we have extraction_id
+        if extraction_id:
+            db = _get_sqlite_db()
+            
+            db.store_artifact(
+                extraction_id=extraction_id,
+                artifact_type='fallback_failure',
+                filename=f"{bioguide_id}_{int(time.time())}_fallback_failure.json",
+                content=json.dumps({
+                    "primary_url": primary_url,
+                    "fallback_urls": urls_to_try[1:],
+                    "total_attempts": len(urls_to_try),
+                    "reason": "No offices found in any URL"
+                }, indent=2).encode('utf-8'),
+                content_type='application/json'
+            )
+        
+        return []

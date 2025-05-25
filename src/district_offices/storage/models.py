@@ -183,7 +183,7 @@ class Artifact(SQLiteBase):
     """
     __tablename__ = 'artifacts'
     __table_args__ = (
-        CheckConstraint("artifact_type IN ('html', 'cleaned_html', 'validation_html', 'llm_response', 'extracted_offices', 'screenshot', 'contact_sections', 'validation_result', 'rejection_result')"),
+        CheckConstraint("artifact_type IN ('html', 'cleaned_html', 'validation_html', 'llm_response', 'extracted_offices', 'screenshot', 'contact_sections', 'validation_result', 'rejection_result', 'fallback_metadata', 'fallback_failure')"),
         Index('idx_artifacts_extraction', 'extraction_id', 'artifact_type'),
     )
     
