@@ -99,7 +99,7 @@ def process_single_bioguide(
         tracker.log_step(log_path, "extract_html", {"artifact_ref": artifact_ref})
         
         # Step 4: Use LLM to extract district office information
-        llm_processor = LLMProcessor(model_name="claude-3-haiku-20240307", api_key=api_key)
+        llm_processor = LLMProcessor(api_key=api_key)
         extracted_offices = llm_processor.extract_district_offices(html_content, bioguide_id, extraction_id)
         
         # Save the extracted offices as an artifact
@@ -186,7 +186,7 @@ def main():
         log.error("Database URI not provided and DATABASE_URI environment variable not set.")
         sys.exit(1)
 
-    api_key = args.api_key or os.environ.get("ANTHROPIC_API_KEY")
+    api_key = args.api_key # Use the generic api_key argument, will be picked up by Config.get_api_key for the default provider
     # No longer exiting if API key is missing, LLMProcessor handles simulation
     # if not api_key:
     #     log.error("Anthropic API key not provided and ANTHROPIC_API_KEY environment variable not set.")

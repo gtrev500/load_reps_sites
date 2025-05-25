@@ -12,3 +12,4 @@ dist/
 *.egg-info/
 
 .*.md
+uv.lock

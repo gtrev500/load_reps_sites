@@ -51,7 +51,7 @@ class LLMProcessor:
         # Check for relevant API keys using Config
         api_key_present = bool(Config.get_api_key("anthropic") or 
                               Config.get_api_key("openai") or 
-                              Config.get_api_key("google"))
+                              Config.get_api_key("gemini"))
         
         if not api_key_present:
             log.warning("No relevant LLM API key found in environment variables. Will simulate responses for development.")
@@ -187,7 +187,7 @@ class LLMProcessor:
         # Check for API keys using Config
         api_key_present = bool(Config.get_api_key("anthropic") or 
                               Config.get_api_key("openai") or 
-                              Config.get_api_key("google"))
+                              Config.get_api_key("gemini"))
         
         if not api_key_present:
             # Simulate a response for development without API key
@@ -220,7 +220,8 @@ class LLMProcessor:
                     model=self.model,
                     messages=llm_messages,
                     max_tokens=Config.MAX_TOKENS,
-                    temperature=Config.TEMPERATURE
+                    temperature=Config.TEMPERATURE,
+                    thinking={"type": "enabled", "budget_tokens": 1024} if litellm.supports_reasoning(model=self.model) else None
                 )
             
             # Make the API call using LiteLLM with exponential backoff for rate limits

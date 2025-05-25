@@ -9,11 +9,11 @@ class Config:
     # === Web Scraping Settings ===
     REQUEST_TIMEOUT = 30
     USER_AGENT = "Mozilla/5.0 (compatible; DistrictOfficeScraper/1.0)"
-    MAX_HTML_LENGTH = 150000
+    MAX_HTML_LENGTH = 200000
     MAX_CONTACT_SECTIONS = 5
     
     # === LLM Settings ===
-    DEFAULT_MODEL = "claude-3-haiku-20240307"
+    DEFAULT_MODEL = "gemini/gemini-2.5-flash-preview-05-20"
     MAX_TOKENS = 4000
     TEMPERATURE = 0.1
     
@@ -48,6 +48,8 @@ class Config:
             return os.getenv('ANTHROPIC_API_KEY', '')
         elif provider.lower() == "openai":
             return os.getenv('OPENAI_API_KEY', '')
+        elif provider.lower() == "google" or provider.lower() == "gemini":
+            return os.getenv('GEMINI_API_KEY', '')
         else:
             return os.getenv(f'{provider.upper()}_API_KEY', '')
     

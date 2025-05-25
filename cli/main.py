@@ -45,7 +45,7 @@ def main():
     scrape_parser.add_argument(
         '--api-key',
         type=str,
-        help='Anthropic API key (if not provided, uses ANTHROPIC_API_KEY environment variable)'
+        help='LLM API key (if not provided, uses relevant <PROVIDER>_API_KEY environment variable e.g. GEMINI_API_KEY)'
     )
     scrape_parser.add_argument(
         '--force',
