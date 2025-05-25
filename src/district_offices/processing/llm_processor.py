@@ -5,6 +5,7 @@ import os
 import sys
 import json
 import time
+import random
 from typing import Dict, List, Optional, Any
 
 # Import LiteLLM for multi-provider LLM support
@@ -54,6 +55,42 @@ class LLMProcessor:
         
         if not api_key_present:
             log.warning("No relevant LLM API key found in environment variables. Will simulate responses for development.")
+    
+    def _exponential_backoff_retry(self, func, max_retries: int = 5, base_delay: float = 1.0):
+        """Execute a function with exponential backoff for rate limiting.
+        
+        Args:
+            func: Function to execute
+            max_retries: Maximum number of retry attempts
+            base_delay: Base delay in seconds for exponential backoff
+            
+        Returns:
+            Function result if successful
+            
+        Raises:
+            Exception: The last exception encountered if all retries fail
+        """
+        last_exception = None
+        
+        for attempt in range(max_retries + 1):
+            try:
+                return func()
+            except litellm.exceptions.RateLimitError as e:
+                last_exception = e
+                if attempt == max_retries:
+                    log.error(f"Rate limit exceeded after {max_retries} retries")
+                    raise e
+                    
+                # Calculate delay with exponential backoff and jitter
+                delay = base_delay * (2 ** attempt) + random.uniform(0, 1)
+                log.warning(f"Rate limit hit (attempt {attempt + 1}/{max_retries + 1}), waiting {delay:.2f}s before retry")
+                time.sleep(delay)
+            except Exception as e:
+                # For non-rate-limit errors, don't retry
+                raise e
+        
+        # This should never be reached, but just in case
+        raise last_exception
     
     def _clean_html_content(self, html_content: str) -> str:
         """Clean HTML content by removing script, style, and other non-content elements.
@@ -177,13 +214,17 @@ class LLMProcessor:
         try:
             log.info(f"Calling LLM ({self.model}) via LiteLLM to extract district offices for {bioguide_id}")
             
-            # Make the API call using LiteLLM with Config values
-            response = litellm.completion(
-                model=self.model,
-                messages=llm_messages,
-                max_tokens=Config.MAX_TOKENS,
-                temperature=Config.TEMPERATURE
-            )
+            # Define the LLM call function for retry logic
+            def make_llm_call():
+                return litellm.completion(
+                    model=self.model,
+                    messages=llm_messages,
+                    max_tokens=Config.MAX_TOKENS,
+                    temperature=Config.TEMPERATURE
+                )
+            
+            # Make the API call using LiteLLM with exponential backoff for rate limits
+            response = self._exponential_backoff_retry(make_llm_call)
             
             # Cost Tracking
             try:
@@ -282,7 +323,9 @@ class LLMProcessor:
             log.error(f"LiteLLM API Connection Error: {e}")
             return []
         except litellm.exceptions.RateLimitError as e:
-            log.error(f"LiteLLM Rate Limit Error: {e}")
+            # This should be handled by the exponential backoff, but if it gets here
+            # it means all retries were exhausted
+            log.error(f"LiteLLM Rate Limit Error after all retries exhausted: {e}")
             return []
         except litellm.exceptions.APIError as e:
             log.error(f"LiteLLM API Error: {e}")
