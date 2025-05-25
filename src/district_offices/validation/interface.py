@@ -523,11 +523,13 @@ class ValidationInterface:
         # Create validated office records
         for office in offices:
             office_id = f"{bioguide_id}-{office.get('city', 'unknown')}-{timestamp}"
-            self.db.create_validated_office(
-                office_id=office_id,
-                bioguide_id=bioguide_id,
-                office_data=office
-            )
+            # Merge all data into a single dictionary
+            validated_office_data = {
+                'office_id': office_id,
+                'bioguide_id': bioguide_id,
+                **office  # Include all office fields
+            }
+            self.db.create_validated_office(validated_office_data)
         
         log.info(f"Saved validated data for {bioguide_id} to SQLite")
     
