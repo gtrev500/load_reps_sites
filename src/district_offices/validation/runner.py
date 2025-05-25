@@ -13,10 +13,13 @@ if __name__ == "__main__":
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
 # Import our modules
-from district_offices.storage import database
+from district_offices import (
+    StagingManager, 
+    ExtractionStatus,
+    store_district_office,
+    ProvenanceTracker
+)
 from district_offices.validation.interface import ValidationInterface
-from district_offices.storage.staging import StagingManager, ExtractionStatus
-from district_offices.utils.logging import ProvenanceTracker
 
 # Import SQLite database for artifact loading
 _sqlite_db = None
@@ -72,9 +75,17 @@ def validate_from_staging(
         contact_sections = ""
         db = _get_sqlite_db()
         
-        # Get the actual extraction object to find artifacts
-        extraction = db.get_latest_extraction(bioguide_id)
-        extraction_id = extraction.id if extraction else None
+        # Get the extraction ID
+        extraction_id = None
+        with db.get_session() as session:
+            from district_offices.storage.models import Extraction
+            extraction = session.query(Extraction).filter(
+                Extraction.bioguide_id == bioguide_id
+            ).order_by(
+                Extraction.created_at.desc()
+            ).first()
+            if extraction:
+                extraction_id = extraction.id
         
         # Load HTML content from artifacts
         if "html_content" in extraction_data.artifacts:
@@ -88,13 +99,6 @@ def validate_from_staging(
                 with open(artifact_ref, 'r', encoding='utf-8') as f:
                     html_content = f.read()
         
-        if not html_content and extraction:
-            # Try to find HTML artifact directly
-            for artifact in extraction.artifacts:
-                if artifact.artifact_type == "html":
-                    html_content = artifact.content.decode('utf-8')
-                    break
-        
         # Load contact sections from artifacts
         if "contact_sections" in extraction_data.artifacts:
             artifact_ref = extraction_data.artifacts["contact_sections"]
@@ -106,13 +110,6 @@ def validate_from_staging(
             elif os.path.exists(artifact_ref):  # Legacy file path
                 with open(artifact_ref, 'r', encoding='utf-8') as f:
                     contact_sections = f.read()
-        
-        if not contact_sections and extraction:
-            # Try to find contact sections artifact directly
-            for artifact in extraction.artifacts:
-                if artifact.artifact_type == "contact_sections":
-                    contact_sections = artifact.content.decode('utf-8')
-                    break
         
         # Initialize validation interface
         validation_interface = ValidationInterface(browser_validation=browser_validation)
@@ -129,9 +126,9 @@ def validate_from_staging(
         )
         
         # Mark extraction as validated or rejected
-        success = staging_manager.mark_validated(bioguide_id, is_valid)
+        success = staging_manager.mark_validated(extraction_id, is_valid)
         if not success:
-            log.error(f"Failed to mark {bioguide_id} as validated/rejected")
+            log.error(f"Failed to mark extraction {extraction_id} as validated/rejected")
             return False
         
         # Auto-store if requested and validation was successful
@@ -145,7 +142,7 @@ def validate_from_staging(
                 office_data["bioguide_id"] = bioguide_id
                 
                 # Store in the database
-                success = database.store_district_office(office_data, database_uri)
+                success = store_district_office(office_data, database_uri)
                 store_success = store_success or success
             
             if store_success:

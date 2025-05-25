@@ -207,17 +207,37 @@ class SQLiteDatabase:
                 Extraction.created_at.desc()
             ).first()
     
+    def get_extractions_by_status(self, status: str) -> List[Extraction]:
+        """Get all extractions with a specific status.
+        
+        Args:
+            status: Status to filter by
+            
+        Returns:
+            List[Extraction]: Extractions with the given status
+        """
+        with self.get_session() as session:
+            return session.query(Extraction).filter(
+                Extraction.status == status
+            ).order_by(
+                Extraction.created_at
+            ).all()
+    
+    # Alias for compatibility
+    get_latest_extraction = get_extraction_by_bioguide
+    
     def update_extraction_status(self, extraction_id: int, status: str, 
                                error_message: Optional[str] = None):
         """Update extraction status.
         
         Args:
-            extraction_id: Extraction ID
+            extraction_id: Extraction ID (int)
             status: New status
             error_message: Optional error message
         """
         with self.get_session() as session:
             extraction = session.query(Extraction).get(extraction_id)
+            
             if extraction:
                 extraction.status = status
                 extraction.updated_at = datetime.utcnow()
@@ -226,6 +246,8 @@ class SQLiteDatabase:
                 if status == 'validated':
                     extraction.validation_timestamp = int(time.time())
                 session.commit()
+                return True
+            return False
     
     def update_extraction_source_url(self, extraction_id: int, source_url: str):
         """Update extraction source URL.
@@ -407,6 +429,19 @@ class SQLiteDatabase:
                     Artifact.artifact_type == artifact_type
                 )
             ).first()
+    
+    def get_artifact_content(self, artifact_id: int) -> Optional[bytes]:
+        """Get artifact content by ID.
+        
+        Args:
+            artifact_id: Artifact ID
+            
+        Returns:
+            Optional[bytes]: The artifact content if found
+        """
+        with self.get_session() as session:
+            artifact = session.query(Artifact).get(artifact_id)
+            return artifact.content if artifact else None
     
     # ========================================================================
     # Cache Management

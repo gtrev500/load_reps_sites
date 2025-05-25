@@ -183,47 +183,56 @@ class StagingManager:
     
     def get_extraction_data(self, bioguide_id: str) -> Optional[ExtractionData]:
         """Get extraction data for a bioguide ID."""
-        extraction = self.db.get_latest_extraction(bioguide_id)
-        if not extraction:
-            return None
-        
-        # Convert to legacy format
-        artifacts = {}
-        for artifact in extraction.artifacts:
-            if artifact.artifact_type == "html":
-                artifacts["html_content"] = f"artifact:{artifact.id}"
-            elif artifact.artifact_type == "contact_sections":
-                artifacts["contact_sections"] = f"artifact:{artifact.id}"
-        
-        offices = []
-        for office in extraction.offices:
-            offices.append({
-                "address": office.address,
-                "suite": office.suite,
-                "building": office.building,
-                "city": office.city,
-                "state": office.state,
-                "zip": office.zip,
-                "phone": office.phone,
-                "fax": office.fax,
-                "hours": office.hours
-            })
-        
-        return ExtractionData(
-            bioguide_id=extraction.bioguide_id,
-            status=ExtractionStatus(extraction.status),
-            extraction_timestamp=extraction.extraction_timestamp,
-            validation_timestamp=extraction.validation_timestamp,
-            source_url=extraction.source_url,
-            extracted_offices=offices,
-            artifacts=artifacts,
-            error_message=extraction.error_message
-        )
+        with self.db.get_session() as session:
+            extraction = session.query(Extraction).filter(
+                Extraction.bioguide_id == bioguide_id
+            ).order_by(
+                Extraction.created_at.desc()
+            ).first()
+            
+            if not extraction:
+                return None
+            
+            # Convert to legacy format while in session
+            artifacts = {}
+            for artifact in extraction.artifacts:
+                if artifact.artifact_type == "html":
+                    artifacts["html_content"] = f"artifact:{artifact.id}"
+                elif artifact.artifact_type == "contact_sections":
+                    artifacts["contact_sections"] = f"artifact:{artifact.id}"
+            
+            offices = []
+            for office in extraction.offices:
+                offices.append({
+                    "address": office.address,
+                    "suite": office.suite,
+                    "building": office.building,
+                    "city": office.city,
+                    "state": office.state,
+                    "zip": office.zip,
+                    "phone": office.phone,
+                    "fax": office.fax,
+                    "hours": office.hours
+                })
+            
+            # Extract all data while in session
+            return ExtractionData(
+                bioguide_id=extraction.bioguide_id,
+                status=ExtractionStatus(extraction.status),
+                extraction_timestamp=extraction.extraction_timestamp,
+                validation_timestamp=extraction.validation_timestamp,
+                source_url=extraction.source_url,
+                extracted_offices=offices,
+                artifacts=artifacts,
+                error_message=extraction.error_message
+            )
     
     def load_pending_extractions(self) -> List[str]:
         """Get list of pending extractions."""
-        extractions = self.db.get_extractions_by_status('pending')
-        return [e.bioguide_id for e in extractions]
+        with self.db.get_session() as session:
+            extractions = session.query(Extraction).filter_by(status='pending').all()
+            # Extract bioguide_ids while still in session
+            return [e.bioguide_id for e in extractions]
     
     def load_all_extractions(self) -> List[str]:
         """Get list of all extractions."""
@@ -231,10 +240,18 @@ class StagingManager:
             extractions = session.query(Extraction).all()
             return [e.bioguide_id for e in extractions]
     
-    def mark_validated(self, bioguide_id: str, is_valid: bool) -> bool:
-        """Mark extraction as validated or rejected."""
+    def mark_validated(self, extraction_id: int, is_valid: bool) -> bool:
+        """Mark extraction as validated or rejected.
+        
+        Args:
+            extraction_id: Specific extraction ID to update
+            is_valid: Whether the extraction was validated (True) or rejected (False)
+            
+        Returns:
+            bool: True if status was updated successfully
+        """
         status = 'validated' if is_valid else 'rejected'
-        return self.db.update_extraction_status(bioguide_id, status)
+        return self.db.update_extraction_status(extraction_id, status)
     
     def get_staging_summary(self) -> Dict[str, int]:
         """Get summary of staging status."""
