@@ -21,7 +21,8 @@ class Config:
     CONNECTION_TIMEOUT = 60
     
     # === Project Root ===
-    PROJECT_ROOT = Path(__file__).parent.parent.parent
+    # Use current working directory instead of package location for data files
+    PROJECT_ROOT = Path.cwd()
     
     # === Data Directories - Minimal set for SQLite ===
     DATA_ROOT = PROJECT_ROOT / "data" 
