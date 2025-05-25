@@ -2,7 +2,10 @@ README.md
 pyproject.toml
 setup.py
 cli/__init__.py
+cli/find_contacts.py
+cli/main.py
 cli/scrape.py
+cli/validate.py
 src/district_offices/__init__.py
 src/district_offices/config.py
 src/district_offices.egg-info/PKG-INFO

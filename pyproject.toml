@@ -32,9 +32,10 @@ dev = [
 ]
 
 [project.scripts]
-district-offices = "cli.scrape:main"
-district-offices-validate = "district_offices.validation.runner:main"
-district-offices-find-contacts = "district_offices.processing.contact_finder:main"
+district-offices = "cli.main:main"
+district-offices-scrape = "cli.scrape:main"
+district-offices-validate = "cli.validate:main"
+district-offices-find-contacts = "cli.find_contacts:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

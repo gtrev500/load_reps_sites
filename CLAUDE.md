@@ -35,14 +35,14 @@ python cli/scrape.py --all --db-uri="postgresql://..." --api-key="sk-..."
 
 ### Validation Workflow
 ```bash
-# Validate pending extractions
-python -m district_offices.validation.runner --all-pending --auto-store
+# Validate pending extractions (browser-based validation is now default)
+python -m district_offices.validation.runner --all-pending
 
-# Validate specific bioguide with browser interface
-python -m district_offices.validation.runner --bioguide-id A000374 --browser-validation
+# Validate specific bioguide
+python -m district_offices.validation.runner --bioguide-id A000374
 
-# Open multiple validation windows for batch review
-python -m district_offices.validation.runner --open-multiple --max-windows 5
+# Validate with automatic database storage
+python -m district_offices.validation.runner --all-pending --db-uri="postgresql://..."
 ```
 
 ### Development and Testing
