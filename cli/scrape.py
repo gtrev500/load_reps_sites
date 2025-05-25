@@ -12,14 +12,14 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from district_offices import (
     get_bioguides_without_district_offices,
     get_contact_page_url, 
-    check_district_office_exists,
-    store_district_office
+    check_district_office_exists
 )
 from district_offices.core.scraper import extract_html
 from district_offices.processing.llm_processor import LLMProcessor
 from district_offices.utils.logging import ProvenanceTracker
 from district_offices.storage.sqlite_db import SQLiteDatabase
 from district_offices.storage.postgres_sync import PostgreSQLSyncManager
+from district_offices.storage.models import Extraction
 from district_offices.config import Config
 
 # --- Logging Setup ---
@@ -60,11 +60,21 @@ def process_single_bioguide(
         extraction_id = int(log_path.split(":")[1])
     
     try:
-        # Step 1: Check if district office information already exists (unless forced)
-        if not force and check_district_office_exists(bioguide_id, database_uri):
-            log.info(f"District office information already exists for {bioguide_id}")
-            tracker.log_process_end(log_path, "skipped", "District office information already exists")
-            return True
+        # Step 1: Check if extraction already exists (unless forced)
+        if not force:
+            # Check if there's already an extraction for this bioguide
+            with db.get_session() as session:
+                existing_extraction = session.query(Extraction).filter(
+                    Extraction.bioguide_id == bioguide_id
+                ).order_by(
+                    Extraction.created_at.desc()
+                ).first()
+                
+                if existing_extraction and existing_extraction.status in ['pending', 'validated', 'processing']:
+                    status = existing_extraction.status  # Extract value while in session
+                    log.info(f"Extraction already exists for {bioguide_id} with status: {status}")
+                    tracker.log_process_end(log_path, "skipped", f"Extraction already exists with status: {status}")
+                    return True
         
         # Step 2: Get the contact page URL
         contact_url = get_contact_page_url(bioguide_id, database_uri)
@@ -104,27 +114,15 @@ def process_single_bioguide(
         if extraction_id:
             for office in extracted_offices:
                 db.create_extracted_office(extraction_id, office)
+            log.info(f"Stored {len(extracted_offices)} extracted offices for {bioguide_id}")
         
-        # Step 6: For now, directly store validated offices (skip validation step)
-        success = False
-        for office in extracted_offices:
-            # Add the bioguide_id to each office
-            office_data = office.copy()
-            office_data["bioguide_id"] = bioguide_id
-            
-            # Store in the database (this will create validated office and sync to PostgreSQL)
-            store_success = store_district_office(office_data, database_uri)
-            success = success or store_success
+        # Update extraction status to indicate it's ready for validation
+        if extraction_id:
+            db.update_extraction_status(extraction_id, "pending")
+            log.info(f"Extraction {extraction_id} marked as pending validation")
         
-        if success:
-            log.info(f"Successfully stored district offices for {bioguide_id}")
-            tracker.log_process_end(log_path, "stored", "District offices stored in database")
-            if extraction_id:
-                db.update_extraction_status(extraction_id, "validated")
-        else:
-            log.error(f"Failed to store district offices for {bioguide_id}")
-            tracker.log_process_end(log_path, "failed", "Failed to store district offices")
-            return False
+        tracker.log_process_end(log_path, "extracted", f"Extracted {len(extracted_offices)} offices, pending validation")
+        log.info(f"Successfully extracted {len(extracted_offices)} district offices for {bioguide_id} - pending validation")
         
         return True
     except Exception as e:

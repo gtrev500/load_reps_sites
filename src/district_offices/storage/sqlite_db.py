@@ -185,6 +185,22 @@ class SQLiteDatabase:
                 Extraction.created_at
             ).limit(limit).all()
     
+    def get_extraction_by_bioguide(self, bioguide_id: str) -> Optional[Extraction]:
+        """Get the most recent extraction for a bioguide ID.
+        
+        Args:
+            bioguide_id: Bioguide ID
+            
+        Returns:
+            Optional[Extraction]: Most recent extraction or None
+        """
+        with self.get_session() as session:
+            return session.query(Extraction).filter(
+                Extraction.bioguide_id == bioguide_id
+            ).order_by(
+                Extraction.created_at.desc()
+            ).first()
+    
     def update_extraction_status(self, extraction_id: int, status: str, 
                                error_message: Optional[str] = None):
         """Update extraction status.
