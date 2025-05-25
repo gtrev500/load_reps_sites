@@ -196,9 +196,9 @@ class PostgreSQLSyncManager:
         
         try:
             # Get unsynced offices
-            offices = self.sqlite_db.get_unsynced_offices()
-            
-            if not offices:
+            offices_to_export_orm = self.sqlite_db.get_unsynced_offices()
+
+            if not offices_to_export_orm:
                 log.info("No offices to export")
                 self.sqlite_db.log_sync_operation(
                     sync_type='offices_export',
@@ -207,62 +207,116 @@ class PostgreSQLSyncManager:
                     status='completed'
                 )
                 return 0
+
+            # Convert ORM objects to a list of dictionaries to avoid detached instance errors
+            offices_data = []
+            if offices_to_export_orm: # Ensure there are offices before trying to access attributes
+                with self.sqlite_db.get_session() as sqlite_session: # Use a session to ensure objects are attached
+                    # Re-query or merge objects into the current session if get_unsynced_offices doesn't guarantee attachment
+                    # For simplicity, assuming get_unsynced_offices returns objects that can be read immediately
+                    # or are fresh from a session. If not, they would need to be merged.
+                    # A safer approach might be to have get_unsynced_offices return dicts directly,
+                    # or to re-fetch by ID within this new session.
+                    # However, for now, let's try direct attribute access, assuming they are still usable.
+                    # A more robust approach if issues persist:
+                    # fresh_offices = [sqlite_session.merge(o) for o in offices_to_export_orm]
+                    # for office in fresh_offices:
+                    # Or, simply re-query:
+                    # office_ids_to_sync = [o.office_id for o in offices_to_export_orm]
+                    # fresh_offices_to_export = sqlite_session.query(ValidatedOffice).filter(ValidatedOffice.office_id.in_(office_ids_to_sync)).all()
+                    
+                    # Simpler: Assuming get_unsynced_offices returns usable objects or objects from an active session context
+                    # If get_unsynced_offices already uses its own session and closes it, the objects would be detached.
+                    # The ideal way is for get_unsynced_offices to either return data dicts, or do its work within a passed session.
+                    # Given the current structure, let's fetch by ID again to ensure freshness within this context.
+                    
+                    office_ids_to_sync = [o.office_id for o in offices_to_export_orm]
+                    if office_ids_to_sync: # only query if there are IDs
+                        fresh_offices_in_session = sqlite_session.query(ValidatedOffice).filter(
+                            ValidatedOffice.office_id.in_(office_ids_to_sync)
+                        ).all()
+
+                        for office in fresh_offices_in_session:
+                            offices_data.append({
+                                "office_id": office.office_id,
+                                "bioguide_id": office.bioguide_id,
+                                "address": office.address,
+                                "suite": office.suite,
+                                "building": office.building,
+                                "city": office.city,
+                                "state": office.state,
+                                "zip": office.zip,
+                                "phone": office.phone,
+                                "fax": office.fax,
+                                "hours": office.hours,
+                            })
             
+            if not offices_data: # Check if there's any data to process after conversion
+                log.info("No office data to export after attempting to convert to dictionaries.")
+                # Update sync log for no offices
+                self.sqlite_db.log_sync_operation(
+                    sync_type='offices_export',
+                    sync_direction='to_upstream',
+                    records_processed=0,
+                    status='completed'
+                )
+                return 0
+
             pg_session = self.PGSession()
-            
+
             # Process in batches
-            for i in range(0, len(offices), batch_size):
-                batch = offices[i:i + batch_size]
-                office_ids = []
-                
-                for office in batch:
+            for i in range(0, len(offices_data), batch_size):
+                batch_data = offices_data[i:i + batch_size]
+                processed_office_ids_in_batch = []
+
+                for office_dict in batch_data:
                     # Create or update in PostgreSQL
                     upstream_office = pg_session.query(UpstreamDistrictOffice).filter_by(
-                        office_id=office.office_id
+                        office_id=office_dict["office_id"]
                     ).first()
-                    
+
                     if upstream_office:
                         # Update existing
-                        upstream_office.bioguide_id = office.bioguide_id
-                        upstream_office.address = office.address
-                        upstream_office.suite = office.suite
-                        upstream_office.building = office.building
-                        upstream_office.city = office.city
-                        upstream_office.state = office.state
-                        upstream_office.zip = office.zip
-                        upstream_office.phone = office.phone
-                        upstream_office.fax = office.fax
-                        upstream_office.hours = office.hours
+                        upstream_office.bioguide_id = office_dict["bioguide_id"]
+                        upstream_office.address = office_dict["address"]
+                        upstream_office.suite = office_dict["suite"]
+                        upstream_office.building = office_dict["building"]
+                        upstream_office.city = office_dict["city"]
+                        upstream_office.state = office_dict["state"]
+                        upstream_office.zip = office_dict["zip"]
+                        upstream_office.phone = office_dict["phone"]
+                        upstream_office.fax = office_dict["fax"]
+                        upstream_office.hours = office_dict["hours"]
                     else:
                         # Create new
                         upstream_office = UpstreamDistrictOffice(
-                            office_id=office.office_id,
-                            bioguide_id=office.bioguide_id,
-                            address=office.address,
-                            suite=office.suite,
-                            building=office.building,
-                            city=office.city,
-                            state=office.state,
-                            zip=office.zip,
-                            phone=office.phone,
-                            fax=office.fax,
-                            hours=office.hours
+                            office_id=office_dict["office_id"],
+                            bioguide_id=office_dict["bioguide_id"],
+                            address=office_dict["address"],
+                            suite=office_dict["suite"],
+                            building=office_dict["building"],
+                            city=office_dict["city"],
+                            state=office_dict["state"],
+                            zip=office_dict["zip"],
+                            phone=office_dict["phone"],
+                            fax=office_dict["fax"],
+                            hours=office_dict["hours"]
                         )
                         pg_session.add(upstream_office)
-                    
-                    office_ids.append(office.office_id)
-                
+
+                    processed_office_ids_in_batch.append(office_dict["office_id"])
+
                 # Commit PostgreSQL changes
                 pg_session.commit()
-                
+
                 # Mark as synced in SQLite
-                self.sqlite_db.mark_offices_synced(office_ids)
-                
-                exported_count += len(batch)
-                log.info(f"Exported batch of {len(batch)} offices")
-            
+                self.sqlite_db.mark_offices_synced(processed_office_ids_in_batch)
+
+                exported_count += len(batch_data)
+                log.info(f"Exported batch of {len(batch_data)} offices")
+
             pg_session.close()
-            
+
             # Update sync log
             self.sqlite_db.log_sync_operation(
                 sync_type='offices_export',

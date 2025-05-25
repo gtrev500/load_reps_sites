@@ -4,6 +4,7 @@ import os
 from enum import Enum
 from typing import Optional, List, Dict, Any
 from dataclasses import dataclass
+from datetime import datetime
 from sqlalchemy import and_
 
 # Configuration
@@ -94,29 +95,47 @@ def store_district_office(office_data: Dict[str, Any], database_uri: str) -> boo
     """Store validated district office data."""
     db = _get_sqlite_db()
     try:
-        # Create validated office
-        validated_office = ValidatedOffice(
-            office_id=office_data.get('office_id', f"{office_data['bioguide_id']}-{office_data.get('city', 'unknown')}"),
-            bioguide_id=office_data['bioguide_id'],
-            address=office_data.get('address'),
-            suite=office_data.get('suite'),
-            building=office_data.get('building'),
-            city=office_data.get('city'),
-            state=office_data.get('state'),
-            zip=office_data.get('zip'),
-            phone=office_data.get('phone'),
-            fax=office_data.get('fax'),
-            hours=office_data.get('hours')
-        )
+        office_id = office_data.get('office_id', f"{office_data['bioguide_id']}-{office_data.get('city', 'unknown')}")
         
         with db.get_session() as session:
-            session.add(validated_office)
+            # Check if office already exists
+            existing_office = session.query(ValidatedOffice).filter_by(office_id=office_id).first()
+            
+            if existing_office:
+                # Update existing office
+                existing_office.bioguide_id = office_data['bioguide_id']
+                existing_office.address = office_data.get('address')
+                existing_office.suite = office_data.get('suite')
+                existing_office.building = office_data.get('building')
+                existing_office.city = office_data.get('city')
+                existing_office.state = office_data.get('state')
+                existing_office.zip = office_data.get('zip')
+                existing_office.phone = office_data.get('phone')
+                existing_office.fax = office_data.get('fax')
+                existing_office.hours = office_data.get('hours')
+                existing_office.validated_at = datetime.utcnow()
+                existing_office.synced_to_upstream = False
+                existing_office.synced_at = None
+            else:
+                # Create new validated office
+                validated_office = ValidatedOffice(
+                    office_id=office_id,
+                    bioguide_id=office_data['bioguide_id'],
+                    address=office_data.get('address'),
+                    suite=office_data.get('suite'),
+                    building=office_data.get('building'),
+                    city=office_data.get('city'),
+                    state=office_data.get('state'),
+                    zip=office_data.get('zip'),
+                    phone=office_data.get('phone'),
+                    fax=office_data.get('fax'),
+                    hours=office_data.get('hours')
+                )
+                session.add(validated_office)
+            
             session.commit()
         
-        # Export to upstream
-        sync_manager = PostgreSQLSyncManager(database_uri, db)
-        sync_manager.export_validated_offices()
-        
+        # Don't export immediately - let the caller handle batch exports
         return True
     except Exception as e:
         print(f"Error storing district office: {e}")
