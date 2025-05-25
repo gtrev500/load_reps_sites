@@ -260,6 +260,25 @@ class SQLiteDatabase:
             session.commit()
             return office_records
     
+    def create_extracted_office(self, extraction_id: int, office_data: Dict[str, Any]) -> ExtractedOffice:
+        """Create an extracted office record.
+        
+        Args:
+            extraction_id: Parent extraction ID
+            office_data: Office data dictionary
+            
+        Returns:
+            ExtractedOffice: Created office record
+        """
+        with self.get_session() as session:
+            office = ExtractedOffice(
+                extraction_id=extraction_id,
+                **office_data
+            )
+            session.add(office)
+            session.commit()
+            return office
+    
     def create_validated_office(self, office_data: Dict[str, Any]) -> ValidatedOffice:
         """Create a validated office ready for export.
         
@@ -321,7 +340,7 @@ class SQLiteDatabase:
     
     def store_artifact(self, extraction_id: int, artifact_type: str,
                       filename: str, content: bytes, content_type: str = None,
-                      compressed: bool = False) -> Artifact:
+                      compressed: bool = False) -> int:
         """Store a binary artifact.
         
         Args:
@@ -333,7 +352,7 @@ class SQLiteDatabase:
             compressed: Whether content is compressed
             
         Returns:
-            Artifact: Created artifact
+            int: Created artifact ID
         """
         with self.get_session() as session:
             artifact = Artifact(
@@ -347,7 +366,7 @@ class SQLiteDatabase:
             )
             session.add(artifact)
             session.commit()
-            return artifact
+            return artifact.id
     
     def get_artifact(self, extraction_id: int, artifact_type: str) -> Optional[Artifact]:
         """Get a specific artifact.

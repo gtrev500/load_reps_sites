@@ -96,7 +96,7 @@ class Extraction(SQLiteBase):
     """Main extraction workflow tracking"""
     __tablename__ = 'extractions'
     __table_args__ = (
-        CheckConstraint("status IN ('pending', 'processing', 'validated', 'rejected', 'failed')"),
+        CheckConstraint("status IN ('pending', 'processing', 'validated', 'rejected', 'failed', 'completed')"),
         Index('idx_extraction_status', 'status'),
         Index('idx_extraction_bioguide', 'bioguide_id'),
         Index('idx_extraction_processing', 'status', 'priority', 
@@ -183,7 +183,7 @@ class Artifact(SQLiteBase):
     """
     __tablename__ = 'artifacts'
     __table_args__ = (
-        CheckConstraint("artifact_type IN ('html', 'cleaned_html', 'validation_html', 'llm_response')"),
+        CheckConstraint("artifact_type IN ('html', 'cleaned_html', 'validation_html', 'llm_response', 'extracted_offices', 'screenshot', 'contact_sections', 'validation_result', 'rejection_result')"),
         Index('idx_artifacts_extraction', 'extraction_id', 'artifact_type'),
     )
     

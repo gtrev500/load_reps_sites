@@ -143,8 +143,9 @@ class LLMProcessor:
         Returns:
             List of dictionaries containing extracted district office information.
         """
-        # Generate unique ID for this extraction
-        extraction_id = f"{bioguide_id}_{int(time.time())}"
+        # Generate unique ID for logging if extraction_id not provided
+        if extraction_id is None:
+            extraction_id = f"{bioguide_id}_{int(time.time())}"
         
         # Check for API keys using Config
         api_key_present = bool(Config.get_api_key("anthropic") or 

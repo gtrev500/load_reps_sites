@@ -19,6 +19,7 @@ from district_offices.core.scraper import extract_html
 from district_offices.processing.llm_processor import LLMProcessor
 from district_offices.utils.logging import ProvenanceTracker
 from district_offices.storage.sqlite_db import SQLiteDatabase
+from district_offices.storage.postgres_sync import PostgreSQLSyncManager
 from district_offices.config import Config
 
 # --- Logging Setup ---
@@ -135,9 +136,9 @@ def process_single_bioguide(
         return False
 
 def main():
-    """Main function to coordinate the district office scraping process."""
+    """Main function for the district office scraper CLI."""
     parser = argparse.ArgumentParser(
-        description="Scrape district office information from representative contact pages."
+        description="Extract district office information from congressional representatives' websites."
     )
     parser.add_argument(
         "--bioguide-id",
@@ -174,22 +175,38 @@ def main():
     args = parser.parse_args()
     
     if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
+        logging.getLogger().setLevel(logging.DEBUG) # Ensure root logger is also set for full verbosity
         log.setLevel(logging.DEBUG)
     
-    # Get database URI
     database_uri = args.db_uri or os.environ.get("DATABASE_URI")
     if not database_uri:
-        log.error("Database URI not provided and DATABASE_URI environment variable not set")
+        log.error("Database URI not provided and DATABASE_URI environment variable not set.")
         sys.exit(1)
-    
-    # Get API key
+
     api_key = args.api_key or os.environ.get("ANTHROPIC_API_KEY")
-    
-    # Initialize provenance tracker
+    # No longer exiting if API key is missing, LLMProcessor handles simulation
+    # if not api_key:
+    #     log.error("Anthropic API key not provided and ANTHROPIC_API_KEY environment variable not set.")
+    #     sys.exit(1)
+
     tracker = ProvenanceTracker()
-    
-    # Process bioguide IDs
+
+    # Initialize database and sync manager
+    log.info("Initializing database connections and performing initial sync...")
+    try:
+        sqlite_db_path = Config.get_sqlite_db_path()
+        sqlite_db = SQLiteDatabase(str(sqlite_db_path))
+        sync_manager = PostgreSQLSyncManager(database_uri, sqlite_db)
+
+        log.info("Syncing members from upstream PostgreSQL...")
+        sync_manager.sync_members_from_upstream()
+        log.info("Syncing contacts from upstream PostgreSQL...")
+        sync_manager.sync_contacts_from_upstream()
+        log.info("Initial sync completed.")
+    except Exception as e:
+        log.error(f"Failed to initialize database or perform initial sync: {e}")
+        sys.exit(1)
+
     if args.bioguide_id:
         # Process a single bioguide ID
         log.info(f"Processing bioguide ID: {args.bioguide_id}")
