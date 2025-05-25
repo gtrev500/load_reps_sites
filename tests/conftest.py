@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from district_offices.storage.staging import StagingManager, ExtractionStatus
+from district_offices import StagingManager, ExtractionStatus
 from district_offices.utils.logging import ProvenanceTracker
 
 

@@ -143,9 +143,13 @@ def check_district_office_exists(bioguide_id: str, database_uri: str) -> bool:
     offices = db.get_validated_offices_for_member(bioguide_id)
     return len(offices) > 0
 
-# Staging compatibility
+# === Staging Compatibility Layer ===
+# These classes provide backward compatibility for the validation runner
+# while the underlying storage has migrated to SQLite. They wrap SQLite
+# operations to maintain the existing validation interface.
+
 class ExtractionStatus(Enum):
-    """Status of an extraction."""
+    """Status of an extraction (compatibility wrapper for validation runner)."""
     PENDING = "pending"
     VALIDATED = "validated"
     REJECTED = "rejected"
@@ -153,7 +157,9 @@ class ExtractionStatus(Enum):
 
 @dataclass
 class ExtractionData:
-    """Legacy extraction data structure."""
+    """Legacy extraction data structure (compatibility wrapper for validation runner).
+    
+    This wraps SQLite data to maintain backward compatibility with validation/runner.py."""
     bioguide_id: str
     status: ExtractionStatus
     extraction_timestamp: int
@@ -170,12 +176,22 @@ class ExtractionData:
             self.artifacts = {}
 
 class StagingManager:
-    """Legacy staging manager - now backed by SQLite."""
+    """Compatibility wrapper that provides the legacy staging interface backed by SQLite.
+    
+    This class maintains the same interface as the old filesystem-based staging system
+    but uses SQLite for all storage operations. It's used by validation/runner.py to
+    maintain backward compatibility while the underlying storage has been modernized.
+    
+    TODO: Consider refactoring validation/runner.py to use SQLiteDatabase directly.
+    """
     
     def __init__(self, staging_dir: Optional[str] = None):
-        """Initialize staging manager with SQLite backend."""
+        """Initialize staging manager with SQLite backend.
+        
+        Args:
+            staging_dir: Ignored - no longer used with SQLite storage
+        """
         self.db = _get_sqlite_db()
-        self.staging_root = staging_dir or "data/staging"  # Keep for compatibility
     
     def get_extraction_data(self, bioguide_id: str) -> Optional[ExtractionData]:
         """Get extraction data for a bioguide ID."""

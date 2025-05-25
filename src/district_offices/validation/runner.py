@@ -403,7 +403,7 @@ def main():
     
     # Initialize staging manager
     staging_manager = StagingManager()
-    log.info(f"Staging manager initialized: {staging_manager.staging_root}")
+    log.info("Staging manager initialized with SQLite backend")
     
     # Validate specific bioguide ID
     if args.bioguide_id:
