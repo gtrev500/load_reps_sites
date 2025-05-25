@@ -30,5 +30,4 @@ src/district_offices/validation/__init__.py
 src/district_offices/validation/interface.py
 src/district_offices/validation/runner.py
 src/district_offices/validation/server.py
-tests/test_async_extraction.py
 tests/test_scraper.py
