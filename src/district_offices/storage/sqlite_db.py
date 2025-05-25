@@ -156,6 +156,12 @@ class SQLiteDatabase:
             int: Created extraction ID
         """
         with self.get_session() as session:
+            # Check if member exists
+            member = session.query(Member).filter_by(bioguideid=bioguide_id).first()
+            if not member:
+                raise ValueError(f"Bioguide ID '{bioguide_id}' not found in members table. "
+                               f"Please ensure this is a valid current member ID.")
+            
             extraction = Extraction(
                 bioguide_id=bioguide_id,
                 source_url=source_url,

@@ -125,6 +125,11 @@ def process_single_bioguide(
         log.info(f"Successfully extracted {len(extracted_offices)} district offices for {bioguide_id} - pending validation")
         
         return True
+    except ValueError as e:
+        # Handle specific ValueError for missing bioguide IDs
+        log.error(f"Invalid bioguide ID: {e}")
+        tracker.log_process_end(log_path, "failed", str(e))
+        return False
     except Exception as e:
         log.error(f"Error processing {bioguide_id}: {e}")
         tracker.log_process_end(log_path, "failed", f"Error: {str(e)}")
@@ -208,18 +213,24 @@ def main():
     if args.bioguide_id:
         # Process a single bioguide ID
         log.info(f"Processing bioguide ID: {args.bioguide_id}")
-        success = process_single_bioguide(
-            args.bioguide_id,
-            database_uri,
-            tracker,
-            api_key,
-            args.force
-        )
-        
-        if success:
-            log.info(f"Successfully processed {args.bioguide_id}")
-        else:
-            log.error(f"Failed to process {args.bioguide_id}")
+        try:
+            success = process_single_bioguide(
+                args.bioguide_id,
+                database_uri,
+                tracker,
+                api_key,
+                args.force
+            )
+            
+            if success:
+                log.info(f"Successfully processed {args.bioguide_id}")
+            else:
+                log.error(f"Failed to process {args.bioguide_id}")
+                sys.exit(1)
+        except ValueError as e:
+            # Specific handling for invalid bioguide IDs
+            log.error(str(e))
+            sys.exit(1)
     
     elif args.all:
         # Process all bioguide IDs without district office information
