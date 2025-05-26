@@ -56,9 +56,9 @@ def generate_fallback_urls(contact_url: str) -> List[str]:
         "contact/district-offices",  # More specific but common
         "locations",  # Second most common
         "office-locations",  # Variation of locations
-        "local-offices",  # Alternative phrasing
+        "contact/locations",  # Alternative phrasing
         "contact-us",  # Alternative contact page format
-        "services",  # Sometimes offices listed under services
+        "contact/offices",  # Sometimes offices listed under services
         "about",  # About pages sometimes have office info
     ]
     

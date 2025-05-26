@@ -10,39 +10,57 @@ This component extracts district office information from congressional represent
 
 ### Installation and Setup
 ```bash
-# Install package in development mode  
+# Install package in development mode with uv
 uv pip install -e .
 
-# Install dependencies
-uv pip install -r requirements.txt
+# Or install specific optional dependencies
+uv pip install -e ".[dev]"
 
 # Test migration and setup
 python test_sqlite_migration.py
 python test_scrape_workflow.py
 ```
 
-### Primary CLI Commands
+### Primary CLI Commands (Modern Interface)
 ```bash
 # Process single representative
-python cli/scrape.py --bioguide-id A000374
+district-offices scrape --bioguide-id A000374
 
 # Process all missing offices
-python cli/scrape.py --all
+district-offices scrape --all
 
 # Use custom database URI and API key
-python cli/scrape.py --all --db-uri="postgresql://..." --api-key="sk-..."
+district-offices scrape --all --db-uri="postgresql://..." --api-key="sk-..."
+
+# Force processing even if data exists
+district-offices scrape --bioguide-id A000374 --force
 ```
 
 ### Validation Workflow
 ```bash
-# Validate pending extractions (browser-based validation is now default)
-python -m district_offices.validation.runner --all-pending
+# Validate pending extractions (browser-based validation is default)
+district-offices validate --all-pending
 
 # Validate specific bioguide
-python -m district_offices.validation.runner --bioguide-id A000374
+district-offices validate --bioguide-id A000374
 
 # Validate with automatic database storage
-python -m district_offices.validation.runner --all-pending --db-uri="postgresql://..."
+district-offices validate --all-pending --db-uri="postgresql://..."
+
+# Process limited batch size
+district-offices validate --all-pending --batch-size 10
+```
+
+### Contact Discovery
+```bash
+# Find and store contact pages
+district-offices find-contacts --store-db
+
+# Find contacts with custom worker count
+district-offices find-contacts --workers 10 --store-db
+
+# Save to file instead of database
+district-offices find-contacts -o contacts.txt
 ```
 
 ### Development and Testing
@@ -52,8 +70,9 @@ pytest
 pytest tests/test_scraper.py -v  # Specific test file
 pytest --cov=district_offices    # With coverage
 
-# Find and store contact pages
+# Legacy module commands (still work)
 python -m district_offices.processing.contact_finder --store-db
+python -m district_offices.validation.runner --all-pending
 ```
 
 ## Architecture
@@ -184,7 +203,10 @@ from district_offices import (
 ## Environment Variables
 - `DATABASE_URI`: PostgreSQL connection string for import/export
 - `ANTHROPIC_API_KEY`: API key for Claude LLM  
-- `SQLITE_DB_PATH`: Custom SQLite database path (optional)
+- `SQLITE_DB_PATH`: Custom SQLite database path (optional, defaults to `./data/district_offices.db`)
+
+### Database Path Configuration
+The SQLite database is created at `./data/district_offices.db` relative to the current working directory. This ensures the database is created in the project root when running commands, regardless of whether the package is installed with `uv pip install .` or run from source. To override this location, set the `SQLITE_DB_PATH` environment variable.
 
 ## Testing and Migration
 
