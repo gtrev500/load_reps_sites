@@ -59,6 +59,7 @@ def generate_fallback_urls(base_website_url: str) -> List[str]:
     # Now includes /contact as the first option since we're starting from base URL
     fallback_paths = [
         "",  # Most common contact page
+        "public",
         "offices",  # Most common pattern for offices
         "contact/district-offices",  # More specific but common
         "locations",  # Second most common
