@@ -290,23 +290,23 @@ class ValidationInterface:
             <div class="validation-buttons"><button class="validation-button accept-button" onclick="submitValidation('accept')">✓ Accept</button><button class="validation-button reject-button" onclick="submitValidation('reject')">✗ Reject</button></div>
             
             <script>
-            function submitValidation(decision) {
+            function submitValidation(decision) {{
                 const url = `http://localhost:{validation_port}/validate?decision=${{decision}}&bioguide_id={bioguide_id}`;
                 fetch(url)
-                    .then(response => {
-                        if (response.ok) {
+                    .then(response => {{
+                        if (response.ok) {{
                             // The server's response will replace the content of this tab.
                             // The server will also trigger the next tab to open.
                             return response.text().then(html => document.body.innerHTML = html);
-                        } else {
+                        }} else {{
                             alert('Error submitting validation. Please check the console.');
-                        }
-                    })
-                    .catch(error => {
+                        }}
+                    }})
+                    .catch(error => {{
                         console.error('Error:', error);
                         alert('Failed to submit validation. Check console and server logs.');
-                    });
-            }
+                    }});
+            }}
             </script>
         </body>
         </html>
