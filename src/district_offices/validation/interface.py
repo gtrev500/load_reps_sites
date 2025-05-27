@@ -387,7 +387,7 @@ class ValidationInterface:
         self, 
         bioguide_id: str, 
         offices: List[Dict[str, Any]], 
-        html_content: str,
+        # html_content: str, # No longer strictly needed by this save method itself
         url: str,
         extraction_id: Optional[int] = None
     ) -> None:
@@ -396,7 +396,7 @@ class ValidationInterface:
         Args:
             bioguide_id: The bioguide ID being processed
             offices: The extracted office information
-            html_content: The HTML content from the representative's page
+            # html_content: The HTML content from the representative's page
             url: The URL that was scraped
             extraction_id: Optional extraction ID to update
         """
