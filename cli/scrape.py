@@ -76,14 +76,17 @@ def process_single_bioguide(
     
     try:
         
-        # Step 2: Get the contact page URL
-        contact_url = get_contact_page_url(bioguide_id, database_uri)
-        if not contact_url:
-            log.error(f"No contact page URL found for {bioguide_id}")
-            tracker.log_process_end(log_path, "failed", "No contact page URL found")
+        # Step 2: Get the official website URL and construct contact page
+        base_url = get_contact_page_url(bioguide_id, database_uri)
+        if not base_url:
+            log.error(f"No official website URL found for {bioguide_id}")
+            tracker.log_process_end(log_path, "failed", "No official website URL found")
             return False
         
-        tracker.log_step(log_path, "get_contact_url", {"contact_url": contact_url})
+        # Append /contact to the base URL as the primary attempt
+        contact_url = base_url.rstrip('/') + '/contact'
+        
+        tracker.log_step(log_path, "get_contact_url", {"base_url": base_url, "contact_url": contact_url})
         
         # Update extraction with source URL
         if extraction_id:
@@ -203,8 +206,6 @@ def main():
 
         log.info("Syncing members from upstream PostgreSQL...")
         sync_manager.sync_members_from_upstream()
-        log.info("Syncing contacts from upstream PostgreSQL...")
-        sync_manager.sync_contacts_from_upstream()
         log.info("Initial sync completed.")
     except Exception as e:
         log.error(f"Failed to initialize database or perform initial sync: {e}")

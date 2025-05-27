@@ -8,66 +8,71 @@ from typing import List
 
 log = logging.getLogger(__name__)
 
-def get_base_url(contact_url: str) -> str:
-    """Extract base URL from contact page URL.
+def get_base_url(url: str) -> str:
+    """Extract base URL from any URL.
     
     Args:
-        contact_url: The original contact page URL
+        url: Any URL (can be base URL or a page URL)
         
     Returns:
         Base URL (scheme + netloc + /)
         
     Example:
         get_base_url("https://example.house.gov/contact") -> "https://example.house.gov/"
+        get_base_url("https://example.house.gov") -> "https://example.house.gov/"
     """
-    parsed = urlparse(contact_url)
+    parsed = urlparse(url)
     return f"{parsed.scheme}://{parsed.netloc}/"
 
-def generate_fallback_urls(contact_url: str) -> List[str]:
-    """Generate ordered list of fallback URLs to try when primary contact page fails.
+def generate_fallback_urls(base_website_url: str) -> List[str]:
+    """Generate ordered list of URLs to try for finding district offices.
     
     This function generates common URL patterns where congressional district offices
-    are typically listed on representative websites.
+    are typically listed on representative websites. Now works with base website URLs
+    instead of assuming a /contact starting point.
     
     Args:
-        contact_url: The original contact page URL that failed
+        base_website_url: The representative's official website URL
         
     Returns:
-        List of fallback URLs to try, ordered by likelihood of success
+        List of URLs to try, ordered by likelihood of success
         
     Example:
-        generate_fallback_urls("https://example.house.gov/contact") ->
+        generate_fallback_urls("https://example.house.gov") ->
         [
-            "https://example.house.gov/",
-            "https://example.house.gov/offices",
+            "https://example.house.gov/contact",
+            "https://example.house.gov/offices", 
+            "https://example.house.gov/contact/district-offices",
             "https://example.house.gov/locations",
-            "https://example.house.gov/district-offices",
+            "https://example.house.gov/contact/offices",
             "https://example.house.gov/office-locations",
-            "https://example.house.gov/local-offices"
+            "https://example.house.gov/contact/locations",
+            "https://example.house.gov/contact-us",
+            "https://example.house.gov/about",
+            "https://example.house.gov/"
         ]
     """
-    base_url = get_base_url(contact_url)
+    base_url = get_base_url(base_website_url)
     
     # Common patterns for district office pages on congressional websites
     # Ordered by likelihood of success based on observed patterns
+    # Now includes /contact as the first option since we're starting from base URL
     fallback_paths = [
-        "",  # Root/home page - often has office info
-        "offices",  # Most common pattern
+        "",  # Most common contact page
+        "offices",  # Most common pattern for offices
         "contact/district-offices",  # More specific but common
         "locations",  # Second most common
+        "contact/offices",  # Contact page subsection
         "office-locations",  # Variation of locations
         "contact/locations",  # Alternative phrasing
         "contact-us",  # Alternative contact page format
-        "contact/offices",  # Sometimes offices listed under services
         "about",  # About pages sometimes have office info
     ]
     
     fallback_urls = []
     for path in fallback_paths:
         url = urljoin(base_url, path)
-        # Don't duplicate the original URL
-        if url != contact_url:
-            fallback_urls.append(url)
+        fallback_urls.append(url)
     
-    log.debug(f"Generated {len(fallback_urls)} fallback URLs for {contact_url}")
+    log.debug(f"Generated {len(fallback_urls)} URLs to try for {base_website_url}")
     return fallback_urls

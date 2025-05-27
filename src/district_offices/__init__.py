@@ -59,20 +59,20 @@ def _get_sqlite_db() -> SQLiteDatabase:
 
 
 def get_contact_page_url(bioguide_id: str, database_uri: str) -> Optional[str]:
-    """Get contact page URL for a bioguide ID."""
+    """Get official website URL for a bioguide ID from Member table."""
     db = _get_sqlite_db()
     with db.get_session() as session:
-        contact = session.query(MemberContact).filter_by(
-            bioguideid=bioguide_id
+        member = session.query(Member).filter_by(
+            bioguideid=bioguide_id,
+            currentmember=True
         ).first()
-        return contact.contact_page if contact else None
+        return member.officialwebsiteurl if member else None
 
 def get_bioguides_without_district_offices(database_uri: str) -> List[str]:
     """Get list of bioguide IDs without district offices."""
     # First sync from upstream if needed
     sync_manager = PostgreSQLSyncManager(database_uri, _get_sqlite_db())
     sync_manager.sync_members_from_upstream()
-    sync_manager.sync_contacts_from_upstream()
     
     # Get members without offices
     db = _get_sqlite_db()
@@ -80,6 +80,8 @@ def get_bioguides_without_district_offices(database_uri: str) -> List[str]:
         members = session.query(Member).filter(
             and_(
                 Member.currentmember == True,
+                Member.officialwebsiteurl.isnot(None),
+                Member.officialwebsiteurl != '',
                 ~Member.validated_offices.any()
             )
         ).all()
