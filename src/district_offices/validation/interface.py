@@ -291,7 +291,7 @@ class ValidationInterface:
             
             <script>
             function submitValidation(decision) {
-                const url = `http://localhost:${validation_port}/validate?decision=${decision}&bioguide_id=${bioguide_id}`;
+                const url = `http://localhost:{validation_port}/validate?decision=${{decision}}&bioguide_id={bioguide_id}`;
                 fetch(url)
                     .then(response => {
                         if (response.ok) {
