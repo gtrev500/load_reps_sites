@@ -110,7 +110,8 @@ def process_single_bioguide(
         
         if not extracted_offices:
             log.warning(f"No district offices found for {bioguide_id}")
-            tracker.log_process_end(log_path, "completed", "No district offices found")
+            tracker.log_process_end(log_path, "no_offices", "No district offices found after trying all URLs")
+            # Still return True as this isn't necessarily an error - some reps may not have district offices
             return True
         
         # Step 5: Store the extracted office information in SQLite

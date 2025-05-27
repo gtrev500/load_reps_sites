@@ -59,7 +59,20 @@ def extract_html(url: str, use_cache: bool = True, extraction_id: Optional[int] 
     
     try:
         log.info(f"Fetching HTML from {url}")
-        response = requests.get(url, headers=headers, timeout=Config.REQUEST_TIMEOUT)
+        response = requests.get(url, headers=headers, timeout=Config.REQUEST_TIMEOUT, allow_redirects=True)
+        
+        # Check if we were redirected to a different host
+        if response.url != url:
+            from urllib.parse import urlparse
+            original_host = urlparse(url).netloc
+            final_host = urlparse(response.url).netloc
+            
+            if original_host != final_host:
+                log.warning(f"Redirect to different host blocked: {url} -> {response.url}")
+                return None, None
+            else:
+                log.info(f"Redirected within same host: {url} -> {response.url}")
+        
         response.raise_for_status()  # Raise an exception for HTTP errors
         
         html_content = response.text

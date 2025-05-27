@@ -432,7 +432,7 @@ class LLMProcessor:
             html_content, artifact_ref = extract_html(url, extraction_id=extraction_id)
             
             if not html_content:
-                log.warning(f"Failed to fetch HTML from {attempt_type} URL: {url}")
+                log.warning(f"Failed to fetch HTML from {attempt_type} URL: {url} (likely HTTP error)")
                 continue
             
             log.info(f"Successfully fetched HTML from {attempt_type} URL: {url}")
