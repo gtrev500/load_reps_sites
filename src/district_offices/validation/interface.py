@@ -72,8 +72,6 @@ class ValidationInterface:
         Args:
             browser_validation: Whether to use browser-based validation (default: False)
         """
-        self.browser_validation = browser_validation
-        self.validation_server = None
         self.db = _get_sqlite_db()
 
     def generate_validation_html(
@@ -82,7 +80,8 @@ class ValidationInterface:
         html_content: str,
         extracted_offices: List[Dict[str, Any]],
         url: str,
-        contact_sections: str
+        contact_sections: str,
+        validation_port: int
     ) -> str:
         """Generate an HTML page for validation.
         
@@ -92,6 +91,7 @@ class ValidationInterface:
             extracted_offices: The extracted office information
             url: The URL that was scraped
             contact_sections: The HTML sections fed to the LLM
+            validation_port: The port the validation server is running on.
             
         Returns:
             Path to the generated HTML file
@@ -183,10 +183,6 @@ class ValidationInterface:
         if not extracted_offices:
             offices_html = "<p>No district offices were found.</p>"
         
-        # Determine validation mode
-        validation_mode = "browser" if self.browser_validation and self.validation_server else "terminal"
-        validation_port = self.validation_server.port if self.validation_server else 0
-        
         # Create the validation HTML
         validation_html = f"""
         <!DOCTYPE html>
@@ -271,7 +267,7 @@ class ValidationInterface:
             <div class="note">
                 <p><strong>Note:</strong> Review the LLM's input and output (left panel) and compare with the original HTML (right panel). 
                 Highlighted text in the right panel corresponds to data extracted by the LLM.</p>
-                {'<p><strong>Click the buttons below to accept or reject the extraction.</strong></p>' if validation_mode == 'browser' else '<p>Then return to the command line to confirm.</p>'}
+                <p><strong>Click the buttons below to accept or reject the extraction.</strong></p>
             </div>
             
             <div class="container">
@@ -291,27 +287,27 @@ class ValidationInterface:
                 </div>
             </div>
             
-            {'<div class="validation-buttons"><button class="validation-button accept-button" onclick="submitValidation(\'accept\')">✓ Accept</button><button class="validation-button reject-button" onclick="submitValidation(\'reject\')">✗ Reject</button></div>' if validation_mode == 'browser' else ''}
+            <div class="validation-buttons"><button class="validation-button accept-button" onclick="submitValidation('accept')">✓ Accept</button><button class="validation-button reject-button" onclick="submitValidation('reject')">✗ Reject</button></div>
             
-            {f'''
             <script>
-            function submitValidation(decision) {{
-                const url = `http://localhost:{validation_port}/validate?decision=${{decision}}&bioguide_id={bioguide_id}`;
+            function submitValidation(decision) {
+                const url = `http://localhost:${validation_port}/validate?decision=${decision}&bioguide_id=${bioguide_id}`;
                 fetch(url)
-                    .then(response => {{
-                        if (response.ok) {{
-                            document.body.innerHTML = response.text().then(html => document.body.innerHTML = html);
-                        }} else {{
+                    .then(response => {
+                        if (response.ok) {
+                            // The server's response will replace the content of this tab.
+                            // The server will also trigger the next tab to open.
+                            return response.text().then(html => document.body.innerHTML = html);
+                        } else {
                             alert('Error submitting validation. Please check the console.');
-                        }}
-                    }})
-                    .catch(error => {{
+                        }
+                    })
+                    .catch(error => {
                         console.error('Error:', error);
-                        alert('Failed to submit validation. Please use the terminal instead.');
-                    }});
-            }}
+                        alert('Failed to submit validation. Check console and server logs.');
+                    });
+            }
             </script>
-            ''' if validation_mode == 'browser' else ''}
         </body>
         </html>
         """
@@ -323,169 +319,24 @@ class ValidationInterface:
         log.info(f"Generated validation HTML at {html_path}")
         return html_path
     
-    def open_validation_interface(self, validation_html_path: str) -> None:
-        """Open the validation interface in a web browser.
-        
-        Args:
-            validation_html_path: Path to the validation HTML file
-        """
-        try:
-            url = f"file://{os.path.abspath(validation_html_path)}"
-            # Try zen-browser first
-            try:
-                log.info(f"Attempting to open validation interface with zen-browser at {url}")
-                subprocess.run(['zen-browser', '--new-window', url], check=True)
-                log.info(f"Successfully opened with zen-browser: {url}")
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                log.warning(f"zen-browser command failed or not found. Falling back to default browser.")
-                try:
-                    # Fallback to webbrowser.open
-                    log.info(f"Opening validation interface with default browser at {url}")
-                    webbrowser.open(url, new=1) # new=1 requests a new window
-                except Exception as e_web:
-                    log.error(f"Failed to open validation interface with fallback browser: {e_web}")
-        except Exception as e_main:
-            # Catch any other unexpected error during the initial setup (e.g., os.path.abspath)
-            log.error(f"Failed to open validation interface: {e_main}")
-    
     def open_validation_interface_nonblocking(self, validation_html_path: str) -> None:
-        """Open the validation interface in a web browser without blocking.
+        """Open the validation interface in a new browser tab without blocking.
         
         Args:
             validation_html_path: Path to the validation HTML file
         """
         try:
             url = f"file://{os.path.abspath(validation_html_path)}"
-            log.info(f"Opening validation interface at {url} (non-blocking)")
-            
-            # Define browser commands, prioritizing zen-browser
-            browser_commands = [
-                ['zen-browser', '--new-window', url], # Prioritize zen-browser with new window
-                ['xdg-open', url],    # Linux default
-                ['open', url],        # macOS
-            ]
-            
-            for cmd in browser_commands:
-                try:
-                    # Use Popen with detached process to avoid blocking
-                    subprocess.Popen(
-                        cmd,
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL,
-                        start_new_session=True
-                    )
-                    log.info(f"Successfully launched browser with command: {cmd}")
-                    return
-                except (subprocess.SubprocessError, FileNotFoundError):
-                    log.debug(f"Command {cmd} failed or not found, trying next.")
-                    continue # Try the next command
-            
-            # Fallback to webbrowser module if all specific subprocess approaches fail
-            log.warning("All specific browser commands failed, falling back to webbrowser.open")
-            webbrowser.open(url, new=1) # new=1 requests a new window
-            
+            log.info(f"Opening validation interface in new tab at {url} (non-blocking)")
+            webbrowser.open_new_tab(url)
         except Exception as e:
-            log.error(f"Failed to open validation interface: {e}")
-    
-    def validate_office_data(
-        self,
-        bioguide_id: str,
-        offices: List[Dict[str, Any]],
-        html_content: str,
-        url: str,
-        contact_sections: str,
-        extraction_id: Optional[int] = None
-    ) -> Tuple[bool, Optional[List[Dict[str, Any]]]]:
-        """Validate the extracted office data through human review.
-        
-        Args:
-            bioguide_id: The bioguide ID being processed
-            offices: The extracted office information
-            html_content: The HTML content from the representative's page
-            url: The URL that was scraped
-            contact_sections: The HTML sections fed to the LLM
-            
-        Returns:
-            Tuple of (is_validated, validated_offices)
-        """
-        # Start validation server if using browser validation
-        if self.browser_validation:
-            from district_offices.validation.server import ValidationServer
-            self.validation_server = ValidationServer()
-            self.validation_server.start()
-            
-        # Generate the validation HTML
-        validation_html_path = self.generate_validation_html(
-            bioguide_id, html_content, offices, url, contact_sections
-        )
-        
-        # Open the validation interface in browser
-        self.open_validation_interface(validation_html_path)
-        
-        is_valid = None
-        
-        if self.browser_validation and self.validation_server:
-            # Browser-based validation
-            print("\nA browser window should have opened with the validation interface.")
-            print(f"Please review the district office information for {bioguide_id}.")
-            print("Click the Accept or Reject button in the browser to continue...")
-            
-            # Wait for browser response
-            result = self.validation_server.wait_for_validation(timeout=300)
-            
-            if result:
-                is_valid = result['decision'] == 'accept'
-                print(f"\nValidation {result['decision']}ed via browser")
-            else:
-                print("\nTimeout waiting for browser response. Falling back to terminal input.")
-                # Fall back to terminal input
-                while is_valid is None:
-                    response = input("Is the extracted information correct? (Y/n): ").strip().lower()
-                    if response == "" or response == "y":
-                        is_valid = True
-                    elif response == "n":
-                        is_valid = False
-                    else:
-                        print("Please enter 'Y' or 'n'")
-            
-            # Stop the validation server
-            self.validation_server.stop()
-            self.validation_server = None
-        else:
-            # Terminal-based validation (original behavior)
-            print("\nA browser window should have opened with the validation interface.")
-            print(f"Please review the district office information for {bioguide_id}.")
-            
-            # Get user input
-            while is_valid is None:
-                response = input("Is the extracted information correct? (Y/n): ").strip().lower()
-                if response == "" or response == "y":
-                    is_valid = True
-                elif response == "n":
-                    is_valid = False
-                else:
-                    print("Please enter 'Y' or 'n'")
-        
-        if is_valid:
-            log.info(f"User approved office data for {bioguide_id}")
-            
-            # Save the validated data
-            self._save_validated_data(bioguide_id, offices, html_content, url, extraction_id)
-            
-            return True, offices
-        else:
-            log.info(f"User rejected office data for {bioguide_id}")
-            
-            # Save the rejected data
-            self._save_rejected_data(bioguide_id, offices, html_content, url, extraction_id)
-            
-            return False, None
+            log.error(f"Failed to open validation interface in new tab: {e}")
     
     def _save_validated_data(
         self, 
         bioguide_id: str, 
         offices: List[Dict[str, Any]], 
-        html_content: str,
+        # html_content: str, # No longer strictly needed by this save method itself
         url: str,
         extraction_id: Optional[int] = None
     ) -> None:
@@ -494,7 +345,6 @@ class ValidationInterface:
         Args:
             bioguide_id: The bioguide ID being processed
             offices: The extracted office information
-            html_content: The HTML content from the representative's page
             url: The URL that was scraped
             extraction_id: Optional extraction ID to update
         """
