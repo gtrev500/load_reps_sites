@@ -198,9 +198,9 @@ class ValidationInterface:
                 table {{ width: 100%; border-collapse: collapse; }}
                 td {{ padding: 5px; border-bottom: 1px solid #eee; }}
                 h2 {{ color: #2c3e50; }}
-                .original-html-iframe {{ width: 100%; height: 600px; border: 1px solid #ddd; }}
+                .original-html-iframe {{ width: 100%; height: 90%; border: 1px solid #ddd; }}
                 .llm-input-iframe {{ width: 100%; height: 300px; border: 1px solid #ccc; margin-bottom:20px;}}
-                .note {{ background-color: #f8f9fa; padding: 10px; border-left: 4px solid #007bff; margin-bottom: 20px; }}
+                .note {{ background-color: #f8f9fa; padding: 10px; border-lzeft: 4px solid #007bff; margin-bottom: 20px; }}
                 .validation-buttons {{
                     position: fixed;
                     bottom: 20px;
